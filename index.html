@@ -3,583 +3,486 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cosmic Clicker: Grade 9 Review</title>
+    <title>Grade 9 Astronomy Review | Astro-Command</title>
     <style>
         :root {
-            --bg-color: #050510;
-            --panel-bg: #151525;
-            --accent: #00d2ff;
-            --secondary: #bd00ff;
-            --text-main: #e0e6ed;
-            --success: #00ff88;
-            --danger: #ff4757;
+            --space-black: #0b0d17;
+            --star-white: #ffffff;
+            --neon-blue: #00f3ff;
+            --neon-purple: #bc13fe;
+            --neon-green: #0aff0a;
+            --neon-red: #ff003c;
+            --panel-bg: rgba(20, 24, 45, 0.9);
+            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: var(--space-black);
+            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
+            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
+            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
+            background-size: 550px 550px, 350px 350px, 250px 250px;
+            background-position: 0 0, 40px 60px, 130px 270px;
+            color: var(--star-white);
+            font-family: var(--font-main);
             margin: 0;
-            height: 100vh;
-            overflow: hidden;
-            display: flex;
-            user-select: none;
-        }
-
-        /* --- LAYOUT --- */
-        .column {
-            padding: 20px;
             display: flex;
             flex-direction: column;
-            border-right: 1px solid #333;
-        }
-
-        /* Left: Clicker & Stats */
-        .col-left {
-            width: 25%;
             align-items: center;
-            background: linear-gradient(180deg, var(--panel-bg) 0%, #000 100%);
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
-            z-index: 10;
+            min-height: 100vh;
         }
 
-        /* Center: Visualizer */
-        .col-center {
-            width: 45%;
-            position: relative;
-            background-image: 
-                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            overflow-y: auto;
+        h1 {
+            text-shadow: 0 0 10px var(--neon-blue);
+            margin-bottom: 5px;
         }
 
-        /* Right: Shop */
-        .col-right {
-            width: 30%;
-            background-color: var(--panel-bg);
-            overflow-y: auto;
+        .subtitle {
+            color: var(--neon-purple);
+            margin-bottom: 20px;
+            font-size: 0.9rem;
         }
 
-        /* --- COMPONENT STYLES --- */
-        
-        h1, h2, h3 { margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
-        h1 { font-size: 1.5rem; color: var(--accent); text-align: center; }
-        
-        .resource-display {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        #data-count {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--success);
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
-            display: block;
-        }
-        
-        #dps-display { font-size: 1rem; color: #888; }
-
-        .big-button {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            border: 4px solid var(--accent);
-            background: radial-gradient(circle, #2a2a40 0%, #000 100%);
-            color: var(--accent);
-            font-size: 1.2rem;
-            font-weight: bold;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.3s;
-            outline: none;
-            box-shadow: 0 0 20px var(--accent);
+        /* --- DASHBOARD NAVIGATION --- */
+        .dashboard-nav {
             display: flex;
-            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
             justify-content: center;
-            text-align: center;
         }
 
-        .big-button:active { transform: scale(0.95); }
-        .big-button:hover { box-shadow: 0 0 40px var(--accent); }
-
-        /* Shop Tabs */
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
-        .tab-btn {
-            flex: 1;
-            padding: 10px;
-            background: none;
-            border: none;
-            color: #888;
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 20px;
             cursor: pointer;
             font-weight: bold;
-        }
-        .tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
-
-        /* Shop Items */
-        .shop-item {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid #444;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .shop-item:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
-        .shop-item.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
-        
-        .item-info h4 { margin: 0 0 5px 0; color: var(--text-main); }
-        .item-info p { margin: 0; font-size: 0.8rem; color: #aaa; }
-        .price-tag { background: #222; padding: 5px 10px; border-radius: 4px; color: var(--success); font-weight: bold; }
-
-        /* System Visualization */
-        .celestial-body {
-            padding: 20px;
-            margin: 10px 0;
-            background: rgba(0, 0, 0, 0.6);
-            border-left: 4px solid var(--accent);
-            border-radius: 0 10px 10px 0;
-            animation: slideIn 0.5s ease-out;
+        .nav-btn:hover, .nav-btn.active {
+            background: var(--neon-blue);
+            color: var(--space-black);
+            box-shadow: 0 0 15px var(--neon-blue);
         }
-        @keyframes slideIn { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        .celestial-body h3 { color: var(--accent); margin-bottom: 5px; }
-        .fact-box { font-size: 0.9rem; color: #ccc; font-style: italic; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; margin-top: 5px; }
-
-        /* MODAL (Quiz) */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
+        /* --- GAME CONTAINER --- */
+        .game-container {
+            width: 90%;
+            max-width: 800px;
             background: var(--panel-bg);
-            border: 2px solid var(--accent);
-            padding: 30px;
-            width: 500px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 0 50px var(--accent);
+            border: 1px solid var(--neon-purple);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
+            min-height: 400px;
+            position: relative;
         }
-        .quiz-options { display: grid; gap: 10px; margin-top: 20px; }
-        .quiz-btn {
-            background: #333; border: 1px solid #555; color: white; padding: 15px;
-            cursor: pointer; border-radius: 5px; transition: 0.2s; font-size: 1rem;
-        }
-        .quiz-btn:hover { background: #444; border-color: white; }
 
-        /* Notifications */
-        .toast {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--success); color: #000; padding: 10px 20px;
-            border-radius: 20px; font-weight: bold; opacity: 0; transition: 0.5s;
+        .hidden { display: none; }
+
+        /* --- MODULE 1: CLASSIFICATION --- */
+        .sort-zone {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .category-bucket {
+            border: 2px dashed var(--neon-purple);
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            transition: background 0.2s;
+            cursor: pointer;
+        }
+
+        .category-bucket:hover {
+            background: rgba(188, 19, 254, 0.1);
+        }
+
+        .current-item-card {
+            background: var(--neon-blue);
+            color: var(--space-black);
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        /* --- MODULE 2: ALIGNMENT --- */
+        .alignment-stage {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background: rgba(0,0,0,0.5);
+            height: 150px;
+            border-radius: 10px;
+            margin: 20px 0;
+            padding: 0 20px;
+        }
+
+        .celestial-body {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            cursor: grab;
+            position: relative;
+            user-select: none;
+            border: 2px solid transparent;
+        }
+
+        .body-sun { background: yellow; color: black; box-shadow: 0 0 20px orange; width: 80px; height: 80px; }
+        .body-earth { background: dodgerblue; color: white; }
+        .body-moon { background: gray; color: white; width: 40px; height: 40px; }
+
+        .alignment-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        /* --- MODULE 3: METRICS --- */
+        .metric-card {
+            text-align: center;
+        }
+
+        .metric-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--neon-blue);
+            color: white;
+            font-size: 1.2rem;
+            text-align: center;
+            width: 150px;
+            margin: 0 10px;
+        }
+
+        .metric-input:focus { outline: none; border-bottom: 2px solid var(--neon-green); }
+
+        /* --- FEEDBACK SYSTEM --- */
+        .feedback-panel {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background: rgba(0, 0, 0, 0.6);
+            display: none;
+        }
+
+        .feedback-correct { border-left: 5px solid var(--neon-green); color: var(--neon-green); }
+        .feedback-wrong { border-left: 5px solid var(--neon-red); color: var(--neon-red); }
+
+        .explanation-text {
+            color: #ccc;
+            margin-top: 5px;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+
+        .btn-action {
+            background: var(--neon-purple);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-action:hover { background: #d94aff; }
+
+        .score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-family: monospace;
+            font-size: 1.2rem;
+            color: var(--neon-green);
         }
 
     </style>
 </head>
 <body>
 
-    <div class="column col-left">
-        <h1>Cosmic Review<br>Engine</h1>
-        
-        <div class="resource-display">
-            <span id="data-count">0</span>
-            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #666;">Data Points (DP)</div>
-            <div id="dps-display">0 DP / second</div>
-        </div>
+    <h1>ASTRO-COMMAND ACADEMY</h1>
+    <div class="subtitle">Grade 9 Astronomy Review Unit</div>
 
-        <button class="big-button" onclick="clickGather()">
-            ANALYZE<br>SPACE
-        </button>
-
-        <div style="margin-top: 30px; width: 100%; padding: 0 20px;">
-            <h3>Mission Status</h3>
-            <p id="mission-log" style="font-size: 0.85rem; color: #888; font-family: monospace;">
-                > System initialized.<br>
-                > Awaiting data collection.<br>
-                > Begin synthesis.
-            </p>
-        </div>
+    <div class="dashboard-nav">
+        <button class="nav-btn active" onclick="loadModule('sort')">1. The Sorting Nebula</button>
+        <button class="nav-btn" onclick="loadModule('align')">2. Alignment Lab</button>
+        <button class="nav-btn" onclick="loadModule('metric')">3. Metric Computer</button>
     </div>
 
-    <div class="column col-center" id="universe-container">
-        <div style="text-align: center; margin-top: 50px; opacity: 0.5;">
-            <h2>The Universe is Empty</h2>
-            <p>Use Data Points to discover Planets and Concepts.</p>
-        </div>
-    </div>
+    <div id="game-container" class="game-container">
+        <div class="score-display">XP: <span id="xp-score">0</span></div>
 
-    <div class="column col-right">
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('planets')">Solar System</button>
-            <button class="tab-btn" onclick="switchTab('research')">Research</button>
-            <button class="tab-btn" onclick="switchTab('stars')">Star Forge</button>
-        </div>
-
-        <div id="shop-planets" class="shop-section">
+        <div id="module-sort">
+            <h2 style="text-align: center; color: var(--neon-blue);">Classify the Object</h2>
+            <p style="text-align: center; color: #aaa;">Identify where the celestial object belongs.</p>
+            
+            <div id="sort-item-display" class="current-item-card">LOADING...</div>
+            
+            <div class="sort-zone">
+                <div class="category-bucket" id="btn-cat1" onclick="checkSort(0)">Option A</div>
+                <div class="category-bucket" id="btn-cat2" onclick="checkSort(1)">Option B</div>
+                <div class="category-bucket" id="btn-cat3" onclick="checkSort(2)">Option C</div>
+                <div class="category-bucket" id="btn-cat4" onclick="checkSort(3)">Option D</div>
             </div>
-        <div id="shop-research" class="shop-section" style="display:none;">
-            </div>
-        <div id="shop-stars" class="shop-section" style="display:none;">
-            </div>
-    </div>
-
-    <div id="quiz-modal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 id="quiz-question" style="color: var(--accent)">Question Text</h2>
-            <div id="quiz-options" class="quiz-options"></div>
-            <p id="quiz-feedback" style="margin-top:15px; font-weight:bold;"></p>
         </div>
-    </div>
 
-    <div id="toast" class="toast">Unlocked!</div>
+        <div id="module-align" class="hidden">
+            <h2 style="text-align: center; color: var(--neon-blue);">Orbital Alignment</h2>
+            <p style="text-align: center; color: #aaa;">Swap the bodies to match the phenomenon.</p>
+            
+            <div id="align-prompt" class="current-item-card">Solar Eclipse</div>
+            
+            <div class="alignment-stage">
+                <div class="celestial-body body-sun" id="pos-1">SUN</div>
+                <div style="width: 20px; height: 2px; background: white;"></div>
+                <div class="celestial-body body-earth" id="pos-2">EARTH</div>
+                <div style="width: 20px; height: 2px; background: white;"></div>
+                <div class="celestial-body body-moon" id="pos-3">MOON</div>
+            </div>
+
+            <div class="alignment-controls">
+                <button class="btn-action" onclick="swapBodies()">Swap Center & Right</button>
+                <button class="btn-action" onclick="checkAlignment()">Confirm Alignment</button>
+            </div>
+        </div>
+
+        <div id="module-metric" class="hidden">
+            <h2 style="text-align: center; color: var(--neon-blue);">Deep Space Conversions</h2>
+            <p style="text-align: center; color: #aaa;">Convert the units or define the distance.</p>
+            
+            <div class="metric-card">
+                <h3 id="metric-q">Convert:</h3>
+                <div style="font-size: 1.5rem; margin: 20px;">
+                    <span id="metric-val">1456</span> <span id="metric-unit-from">m</span>
+                    = 
+                    <input type="text" id="user-metric-input" class="metric-input" placeholder="?"> 
+                    <span id="metric-unit-to">km</span>
+                </div>
+                <button class="btn-action" onclick="checkMetric()">Submit Calculation</button>
+            </div>
+        </div>
+
+        <div id="feedback-area" class="feedback-panel">
+            <h3 id="feedback-title">Correct!</h3>
+            <p id="feedback-content" class="explanation-text">Explanation goes here.</p>
+            <button id="next-btn" class="btn-action" onclick="nextQuestion()">Next Mission</button>
+        </div>
+
+    </div>
 
 <script>
-    /* --- GAME DATA & CONFIG --- */
-    let dataPoints = 0;
-    let dps = 0;
-    let clickValue = 1;
+    // --- STATE MANAGEMENT ---
+    let currentModule = 'sort';
+    let score = 0;
+    let currentQIndex = 0;
+
+    // --- DATA BANKS (Based on Source Text) ---
     
-    // SOURCES: Mapping review sheet content to game items
-    
-    const planets = [
-        { 
-            id: 'p1', name: 'Sun (Core)', cost: 15, dps: 1, 
-            desc: 'The center of our system.', 
-            fact: 'The Sun is a star powered by Nuclear Fusion [Source 3, 28].',
-            q: 'What process powers the Sun?',
-            a: ['Burning Coal', 'Nuclear Fusion', 'Nuclear Fission', 'Gravity'],
-            correct: 1
-        },
-        { 
-            id: 'p2', name: 'Mercury', cost: 50, dps: 2, 
-            desc: 'Closest to the Sun.', 
-            fact: 'Mercury is a Terrestrial (Inner) planet [Source 13].',
-            q: 'Mercury is part of which group of planets?',
-            a: ['Gas Giants', 'Dwarf Planets', 'Terrestrial Planets', 'Asteroids'],
-            correct: 2
-        },
-        { 
-            id: 'p3', name: 'Venus', cost: 120, dps: 4, 
-            desc: 'Hottest planet.', 
-            fact: 'Venus is the hottest planet due to a thick atmosphere [Source 15].',
-            q: 'Which unit measures distance WITHIN our solar system (like Sun to Venus)?',
-            a: ['Light Year', 'Kilometer', 'Astronomical Unit (AU)', 'Parsec'],
-            correct: 2
-        },
-        { 
-            id: 'p4', name: 'Earth', cost: 250, dps: 8, 
-            desc: 'Our home.', 
-            fact: 'Earth has liquid water and a magnetic field that protects from Solar Wind [Source 3, 40].',
-            q: 'What protects Earth from the Solar Wind?',
-            a: ['The Moon', 'Magnetic Field', 'Gravity', 'Ozone Layer'],
-            correct: 1
-        },
-        { 
-            id: 'p5', name: 'Mars', cost: 500, dps: 15, 
-            desc: 'The Red Planet.', 
-            fact: 'The last of the Inner Planets. Mars has the largest volcano in the system [Source 15].',
-            q: 'What do all 4 Inner Planets have in common?',
-            a: ['Made of Gas', 'Rocky Surface', 'Rings', 'Many Moons'],
-            correct: 1
-        },
-        { 
-            id: 'p6', name: 'Asteroid Belt', cost: 800, dps: 20, 
-            desc: 'Divider of the system.', 
-            fact: 'Asteroids are rocks located mostly between Mars and Jupiter [Source 19].',
-            q: 'Where is the main Asteroid Belt found?',
-            a: ['Near the Sun', 'Between Earth and Mars', 'Between Mars and Jupiter', 'Outside Pluto'],
-            correct: 2
-        },
-        { 
-            id: 'p7', name: 'Jupiter', cost: 1500, dps: 40, 
-            desc: 'King of Planets.', 
-            fact: 'The first Gas Giant. It is the largest planet in the solar system [Source 12, 14].',
-            q: 'Jupiter belongs to which group?',
-            a: ['Terrestrial', 'Gas Giants', 'Dwarfs', 'Stars'],
-            correct: 1
-        },
-        { 
-            id: 'p8', name: 'Saturn', cost: 3000, dps: 60, 
-            desc: 'Ringed Beauty.', 
-            fact: 'Gas Giant famous for its complex ring system.',
-            q: 'What is the main difference between a Moon and a Planet?',
-            a: ['Size', 'Planets orbit Stars; Moons orbit Planets', 'Shape', 'Composition'],
-            correct: 1
-        },
-        { 
-            id: 'p9', name: 'Uranus', cost: 5000, dps: 100, 
-            desc: 'The Sideways Planet.', 
-            fact: 'Uranus rotates on its side. It is an Ice Giant [Source 12].',
-            q: 'Which planets are the "Outer Planets"?',
-            a: ['Mercury, Venus', 'Earth, Mars', 'Jupiter, Saturn, Uranus, Neptune', 'Pluto, Eris'],
-            correct: 2
-        },
-        { 
-            id: 'p10', name: 'Neptune', cost: 8000, dps: 150, 
-            desc: 'The Windy Planet.', 
-            fact: 'The furthest planet from the Sun.',
-            q: 'How many planets are in our solar system?',
-            a: ['7', '8', '9', '10'],
-            correct: 1
-        },
-        { 
-            id: 'p11', name: 'Pluto (Dwarf)', cost: 12000, dps: 250, 
-            desc: 'The former planet.', 
-            fact: 'Pluto is a Dwarf Planet because it has not cleared its orbit of debris [Source 34].',
-            q: 'Why is Pluto NOT a planet?',
-            a: ['Too small', 'Too far', 'Has not cleared its orbit', 'No moons'],
-            correct: 2
-        }
+    // Sort Data: Covers Planets [12-14], Stars [16-17], Debris [18-19], Pluto [34]
+    const sortData = [
+        { item: "Jupiter", options: ["Terrestrial Planet", "Gas Giant", "Star", "Dwarf Planet"], correct: 1, explanation: "Jupiter is a Gas Giant. It is located in the outer solar system and composed mostly of Hydrogen and Helium." },
+        { item: "White Dwarf", options: ["Star Birth", "Low Mass Star Death", "High Mass Star Death", "Planet"], correct: 1, explanation: "A White Dwarf is the final stage of a low-to-medium mass star (like our Sun) after it sheds its outer layers." },
+        { item: "Pluto", options: ["Terrestrial Planet", "Gas Giant", "Asteroid", "Dwarf Planet"], correct: 3, explanation: "Pluto is a Dwarf Planet. [cite_start]In 2006, it was reclassified because it has not 'cleared its neighborhood' of other objects[cite: 34]." },
+        { item: "Comet", options: ["Made of Ice/Dust", "Made of Rock/Metal", "Star", "Galaxy"], correct: 0, explanation: "Comets are 'dirty snowballs' made of ice and dust. [cite_start]They have highly elliptical orbits and develop tails near the Sun[cite: 18]." },
+        { item: "Mars", options: ["Terrestrial Planet", "Gas Giant", "Moon", "Asteroid"], correct: 0, explanation: "Mars is a Terrestrial Planet. [cite_start]It is one of the four inner planets with a solid, rocky surface[cite: 13]." },
+        [cite_start]{ item: "Black Hole", options: ["Low Mass Star Death", "High Mass Star Death", "Nebula", "Protostar"], correct: 1, explanation: "A Black Hole is formed from the collapse of a very high mass star (supernova remnant)[cite: 16]." },
+        [cite_start]{ item: "Nebula", options: ["Star Birthplace", "Star Death", "Planet", "Comet"], correct: 0, explanation: "A Nebula is a giant cloud of gas and dust where stars are born (Protostars)[cite: 16]." },
+        [cite_start]{ item: "Asteroid", options: ["Icy Body", "Rocky Body", "Star", "Gas Giant"], correct: 1, explanation: "Asteroids are rocky, airless remnants left over from the early formation of our solar system, mostly found in the belt between Mars and Jupiter[cite: 19]." }
     ];
 
-    const research = [
-        {
-            id: 'r1', name: 'Define: Light Year', cost: 100, dps: 5,
-            desc: 'Unlock deep space measurement.',
-            fact: 'A Light Year is the distance light travels in one year. Used for stars/galaxies [Source 4].',
-            q: 'Which unit is used to measure distance to other Galaxies?',
-            a: ['Kilometers', 'AU', 'Light Year', 'Parsecs'],
-            correct: 2
-        },
-        {
-            id: 'r2', name: 'Unlock: Solar Eclipse', cost: 300, dps: 10,
-            desc: 'Predict shadowing events.',
-            fact: 'Solar Eclipse: Moon blocks Sun. Alignment: Sun-Moon-Earth. Phase: New Moon [Source 22].',
-            q: 'What is the alignment for a Solar Eclipse?',
-            a: ['Sun-Earth-Moon', 'Sun-Moon-Earth', 'Moon-Sun-Earth', 'Earth-Sun-Moon'],
-            correct: 1
-        },
-        {
-            id: 'r3', name: 'Unlock: Lunar Eclipse', cost: 600, dps: 20,
-            desc: 'Predict blood moons.',
-            fact: 'Lunar Eclipse: Earth blocks Sun. Alignment: Sun-Earth-Moon. Phase: Full Moon [Source 21].',
-            q: 'What Moon phase is required for a Lunar Eclipse?',
-            a: ['New Moon', 'First Quarter', 'Full Moon', 'Waning Crescent'],
-            correct: 2
-        },
-        {
-            id: 'r4', name: 'Define: Comets', cost: 1000, dps: 30,
-            desc: 'Study icy bodies.',
-            fact: 'Comets are ice/dust ("dirty snowballs") with highly elliptical orbits [Source 18].',
-            q: 'How is a Comet\'s orbit different from a Planet?',
-            a: ['It is perfectly circular', 'It is highly elliptical (oval)', 'It is square', 'It doesn\'t orbit the sun'],
-            correct: 1
-        },
-        {
-            id: 'r5', name: 'Define: Seasons', cost: 2000, dps: 50,
-            desc: 'Why is it cold in winter?',
-            fact: 'Seasons are caused by the tilt of Earth\'s axis (23.5°), NOT distance from the Sun [Source 3].',
-            q: 'What causes Earth\'s seasons?',
-            a: ['Distance from Sun', 'Solar Flares', 'Tilt of Earth\'s Axis', 'Moon\'s gravity'],
-            correct: 2
-        }
+    // Alignment Data: Covers Eclipses [20-22], Phases [7-8]
+    // Config: 0 = Sun-Earth-Moon, 1 = Sun-Moon-Earth
+    const alignData = [
+        [cite_start]{ name: "Solar Eclipse", targetConfig: 1, explanation: "In a Solar Eclipse, the Moon passes between the Sun and Earth, blocking the Sun's light[cite: 22]." },
+        [cite_start]{ name: "Lunar Eclipse", targetConfig: 0, explanation: "In a Lunar Eclipse, the Earth passes between the Sun and Moon, casting a shadow on the Moon[cite: 21]." },
+        [cite_start]{ name: "Full Moon", targetConfig: 0, explanation: "During a Full Moon, the Earth is between the Sun and Moon, allowing us to see the fully illuminated side of the Moon[cite: 7]." },
+        { name: "New Moon", targetConfig: 1, explanation: "During a New Moon, the Moon is between the Sun and Earth. [cite_start]The illuminated side faces away from us[cite: 8]." }
     ];
 
-    const stars = [
-        {
-            id: 's1', name: 'Nebula', cost: 2000, dps: 25,
-            desc: 'Birthplace of stars.',
-            fact: 'All stars begin in a Nebula (cloud of gas and dust) [Source 36].',
-            q: 'What is the first stage of a star\'s life?',
-            a: ['White Dwarf', 'Nebula', 'Red Giant', 'Supernova'],
-            correct: 1
-        },
-        {
-            id: 's2', name: 'Low Mass Path', cost: 5000, dps: 80,
-            desc: 'Life of a sun-like star.',
-            fact: 'Small Star -> Red Giant -> White Dwarf [Source 16].',
-            q: 'How does a low/medium mass star (like the Sun) die?',
-            a: ['Supernova', 'Black Hole', 'White Dwarf', 'Neutron Star'],
-            correct: 2
-        },
-        {
-            id: 's3', name: 'High Mass Path', cost: 15000, dps: 200,
-            desc: 'Life of a giant star.',
-            fact: 'Massive Star -> Red Supergiant -> Supernova -> Neutron Star or Black Hole [Source 16].',
-            q: 'What determines if a star becomes a Black Hole or White Dwarf?',
-            a: ['Its Color', 'Its Mass', 'Its Distance', 'Its Temperature'],
-            correct: 1
-        }
+    // Metric Data: Covers Conversions [41, 42], Units [4]
+    const metricData = [
+        { type: "math", val: 1456, uFrom: "m", uTo: "km", ans: 1.456, exp: "To convert meters to km, divide by 1000. 1456 / 1000 = 1.456 km." },
+        { type: "math", val: 78.2, uFrom: "kg", uTo: "g", ans: 78200, exp: "To convert kg to g, multiply by 1000. 78.2 * 1000 = 78,200 g." },
+        { type: "math", val: 159, uFrom: "hm", uTo: "mm", ans: 15900000, exp: "Hecto (hm) to milli (mm) is a factor of 100,000 (10^5). 159 * 100,000 = 15,900,000." },
+        [cite_start]{ type: "def", q: "Distance: Earth to Sun", uFrom: "Unit?", uTo: "", ans: "au", exp: "An Astronomical Unit (AU) is defined as the average distance between the Earth and the Sun (~150 million km)[cite: 4]." },
+        [cite_start]{ type: "def", q: "Distance: To other stars", uFrom: "Unit?", uTo: "", ans: "light year", exp: "Distances to other stars/galaxies are measured in Light Years (the distance light travels in one year)[cite: 4]." }
     ];
 
-    let purchased = [];
+    // --- GAME LOGIC ---
 
-    /* --- INITIALIZATION --- */
     function init() {
-        renderShop('shop-planets', planets);
-        renderShop('shop-research', research);
-        renderShop('shop-stars', stars);
-        gameLoop();
+        loadModule('sort');
     }
 
-    /* --- CORE MECHANICS --- */
-    function clickGather() {
-        dataPoints += clickValue;
-        updateUI();
+    function loadModule(modName) {
+        currentModule = modName;
+        currentQIndex = 0; // Reset question index for demo purposes (or shuffle in real app)
         
-        // Simple visual effect
-        const btn = document.querySelector('.big-button');
-        btn.style.transform = 'scale(0.95)';
-        setTimeout(() => btn.style.transform = 'scale(1)', 50);
+        // UI Switching
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.nav-btn')[modName === 'sort' ? 0 : modName === 'align' ? 1 : 2].classList.add('active');
+
+        document.getElementById('module-sort').classList.add('hidden');
+        document.getElementById('module-align').classList.add('hidden');
+        document.getElementById('module-metric').classList.add('hidden');
+        document.getElementById(`module-${modName}`).classList.remove('hidden');
+
+        hideFeedback();
+
+        if(modName === 'sort') loadSortQuestion();
+        if(modName === 'align') loadAlignQuestion();
+        if(modName === 'metric') loadMetricQuestion();
     }
 
-    function gameLoop() {
-        setInterval(() => {
-            dataPoints += dps;
-            updateUI();
-            checkUnlockables();
-        }, 1000);
+    function hideFeedback() {
+        document.getElementById('feedback-area').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'inline-block'; // Ensure next button is ready
     }
 
-    function updateUI() {
-        document.getElementById('data-count').innerText = Math.floor(dataPoints).toLocaleString();
-        document.getElementById('dps-display').innerText = `${dps} DP / second`;
+    function showFeedback(isCorrect, text) {
+        const fb = document.getElementById('feedback-area');
+        const fbTitle = document.getElementById('feedback-title');
+        const fbContent = document.getElementById('feedback-content');
         
-        // Update Shop Buttons
-        [...planets, ...research, ...stars].forEach(item => {
-            const el = document.getElementById(`btn-${item.id}`);
-            if (el && !purchased.includes(item.id)) {
-                if (dataPoints >= item.cost) {
-                    el.classList.remove('locked');
-                    el.style.opacity = '1';
-                } else {
-                    el.classList.add('locked');
-                }
-            }
-        });
-    }
+        fb.style.display = 'block';
+        fbTitle.innerText = isCorrect ? "Excellent Work!" : "Correction Needed";
+        fbTitle.className = isCorrect ? "feedback-correct" : "feedback-wrong";
+        fbContent.innerText = text;
 
-    /* --- SHOP SYSTEM --- */
-    function renderShop(containerId, items) {
-        const container = document.getElementById(containerId);
-        container.innerHTML = '';
-        items.forEach(item => {
-            const div = document.createElement('div');
-            div.className = 'shop-item locked';
-            div.id = `btn-${item.id}`;
-            div.onclick = () => tryBuy(item);
-            div.innerHTML = `
-                <div class="item-info">
-                    <h4>${item.name}</h4>
-                    <p>${item.desc}</p>
-                </div>
-                <div class="price-tag">${item.cost} DP</div>
-            `;
-            container.appendChild(div);
-        });
-    }
-
-    function switchTab(tab) {
-        document.querySelectorAll('.shop-section').forEach(el => el.style.display = 'none');
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(`shop-${tab}`).style.display = 'block';
-        event.target.classList.add('active');
-    }
-
-    function tryBuy(item) {
-        if (purchased.includes(item.id)) return;
-        if (dataPoints < item.cost) return;
-
-        // Trigger Quiz
-        launchQuiz(item);
-    }
-
-    /* --- QUIZ & UNLOCK LOGIC --- */
-    function launchQuiz(item) {
-        const modal = document.getElementById('quiz-modal');
-        const qText = document.getElementById('quiz-question');
-        const options = document.getElementById('quiz-options');
-        const feedback = document.getElementById('quiz-feedback');
-
-        modal.style.display = 'flex';
-        qText.innerText = item.q;
-        options.innerHTML = '';
-        feedback.innerText = '';
-        feedback.className = '';
-
-        item.a.forEach((opt, idx) => {
-            const btn = document.createElement('button');
-            btn.className = 'quiz-btn';
-            btn.innerText = opt;
-            btn.onclick = () => checkAnswer(idx, item);
-            options.appendChild(btn);
-        });
-    }
-
-    function checkAnswer(idx, item) {
-        const feedback = document.getElementById('quiz-feedback');
-        if (idx === item.correct) {
-            feedback.style.color = 'var(--success)';
-            feedback.innerText = 'CORRECT! Uploading to Database...';
-            setTimeout(() => {
-                completePurchase(item);
-                document.getElementById('quiz-modal').style.display = 'none';
-            }, 1000);
-        } else {
-            feedback.style.color = 'var(--danger)';
-            feedback.innerText = 'ACCESS DENIED. Incorrect Review Data.';
+        if (isCorrect) {
+            score += 100;
+            document.getElementById('xp-score').innerText = score;
         }
     }
 
-    function completePurchase(item) {
-        dataPoints -= item.cost;
-        dps += item.dps;
-        purchased.push(item.id);
-        
-        // Remove from shop visual
-        const shopBtn = document.getElementById(`btn-${item.id}`);
-        shopBtn.style.background = 'rgba(0, 255, 136, 0.1)';
-        shopBtn.innerHTML = `<h4>✓ ${item.name} INSTALLED</h4>`;
-        shopBtn.style.cursor = 'default';
-        shopBtn.onclick = null;
-
-        // Add to Universe Visualizer
-        addToUniverse(item);
-
-        // Toast
-        const toast = document.getElementById('toast');
-        toast.style.opacity = '1';
-        toast.style.bottom = '50px';
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.bottom = '20px';
-        }, 2000);
-
-        // Log
-        const log = document.getElementById('mission-log');
-        log.innerHTML = `> Acquired: ${item.name}<br>` + log.innerHTML;
-        
-        updateUI();
+    // --- SORTING MODULE LOGIC ---
+    function loadSortQuestion() {
+        const q = sortData[currentQIndex % sortData.length];
+        document.getElementById('sort-item-display').innerText = q.item;
+        const buttons = document.querySelectorAll('.category-bucket');
+        buttons.forEach((btn, index) => {
+            btn.innerText = q.options[index];
+            btn.style.pointerEvents = 'auto'; // re-enable clicks
+        });
     }
 
-    function addToUniverse(item) {
-        const container = document.getElementById('universe-container');
+    function checkSort(choiceIndex) {
+        const q = sortData[currentQIndex % sortData.length];
+        // Disable buttons to prevent double clicking
+        document.querySelectorAll('.category-bucket').forEach(b => b.style.pointerEvents = 'none');
         
-        // Remove "Empty" placeholder if first item
-        if (purchased.length === 1) container.innerHTML = '';
-
-        const div = document.createElement('div');
-        div.className = 'celestial-body';
-        div.innerHTML = `
-            <h3>${item.name}</h3>
-            <div>${item.fact}</div>
-            <div class="fact-box">Generating ${item.dps} DP/s</div>
-        `;
-        container.prepend(div);
+        if (choiceIndex === q.correct) {
+            showFeedback(true, q.explanation);
+        } else {
+            showFeedback(false, `Not quite. ${q.explanation}`);
+        }
     }
 
-    function checkUnlockables() {
-        // Here we could implement dependencies (e.g. can't buy Earth before Venus)
-        // But for this simple version, cost is the gatekeeper.
+    // --- ALIGNMENT MODULE LOGIC ---
+    let currentAlignConfig = 0; // 0: S-E-M, 1: S-M-E
+
+    function loadAlignQuestion() {
+        const q = alignData[currentQIndex % alignData.length];
+        document.getElementById('align-prompt').innerText = `Form a: ${q.name}`;
+        
+        // Randomize starting position
+        currentAlignConfig = Math.random() < 0.5 ? 0 : 1;
+        renderAlignment();
+    }
+
+    function swapBodies() {
+        currentAlignConfig = currentAlignConfig === 0 ? 1 : 0;
+        renderAlignment();
+    }
+
+    function renderAlignment() {
+        const p2 = document.getElementById('pos-2'); // Center
+        const p3 = document.getElementById('pos-3'); // Right
+        
+        if (currentAlignConfig === 0) {
+            // Earth Center, Moon Right
+            p2.innerText = "EARTH"; p2.className = "celestial-body body-earth";
+            p3.innerText = "MOON"; p3.className = "celestial-body body-moon";
+        } else {
+            // Moon Center, Earth Right
+            p2.innerText = "MOON"; p2.className = "celestial-body body-moon";
+            p3.innerText = "EARTH"; p3.className = "celestial-body body-earth";
+        }
+    }
+
+    function checkAlignment() {
+        const q = alignData[currentQIndex % alignData.length];
+        if (currentAlignConfig === q.targetConfig) {
+            showFeedback(true, q.explanation);
+        } else {
+            showFeedback(false, `Incorrect. ${q.explanation} Try swapping positions.`);
+        }
+    }
+
+    // --- METRIC MODULE LOGIC ---
+    function loadMetricQuestion() {
+        const q = metricData[currentQIndex % metricData.length];
+        document.getElementById('user-metric-input').value = "";
+        
+        if(q.type === 'math') {
+            document.getElementById('metric-q').innerText = "Calculate Conversion:";
+            document.getElementById('metric-val').innerText = q.val;
+            document.getElementById('metric-unit-from').innerText = q.uFrom;
+            document.getElementById('metric-unit-to').innerText = q.uTo;
+        } else {
+            document.getElementById('metric-q').innerText = q.q;
+            document.getElementById('metric-val').innerText = "";
+            document.getElementById('metric-unit-from').innerText = "";
+            document.getElementById('metric-unit-to').innerText = "";
+            document.getElementById('user-metric-input').placeholder = "Enter Term";
+        }
+    }
+
+    function checkMetric() {
+        const q = metricData[currentQIndex % metricData.length];
+        const input = document.getElementById('user-metric-input').value.toLowerCase().trim();
+        
+        let correct = false;
+        
+        if (q.type === 'math') {
+            // Allow slight margin of error or string matching
+            if (parseFloat(input) === q.ans) correct = true;
+        } else {
+            if (input === q.ans) correct = true;
+        }
+
+        if (correct) {
+            showFeedback(true, q.exp);
+        } else {
+            showFeedback(false, `Incorrect. ${q.exp}`);
+        }
+    }
+
+    // --- GLOBAL CONTROL ---
+    function nextQuestion() {
+        hideFeedback();
+        currentQIndex++;
+        if(currentModule === 'sort') loadSortQuestion();
+        if(currentModule === 'align') loadAlignQuestion();
+        if(currentModule === 'metric') loadMetricQuestion();
     }
 
     // Start

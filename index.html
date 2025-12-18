@@ -3,490 +3,342 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 9 Astronomy Review | Astro-Command</title>
+    <title>Metric Ladder Lab | Grade 9 Science</title>
     <style>
         :root {
-            --space-black: #0b0d17;
-            --star-white: #ffffff;
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --neon-green: #0aff0a;
-            --neon-red: #ff003c;
-            --panel-bg: rgba(20, 24, 45, 0.9);
-            --font-main: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            --bg-color: #1a1a2e;
+            --panel-color: #16213e;
+            --accent-green: #0f3460;
+            --highlight: #e94560;
+            --text-light: #f1f1f1;
+            --ladder-color: #4da8da;
         }
 
         body {
-            background-color: var(--space-black);
-            background-image: radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
-            radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
-            radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
-            background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
-            color: var(--star-white);
-            font-family: var(--font-main);
-            margin: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-light);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
+            margin: 0;
+            padding: 20px;
         }
 
-        h1 {
-            text-shadow: 0 0 10px var(--neon-blue);
-            margin-bottom: 5px;
+        h1 { border-bottom: 2px solid var(--highlight); padding-bottom: 10px; }
+
+        .game-wrapper {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            justify-content: center;
         }
 
-        .subtitle {
-            color: var(--neon-purple);
-            margin-bottom: 20px;
+        /* --- THE LADDER VISUALIZER --- */
+        .ladder-container {
+            background: var(--panel-color);
+            padding: 20px;
+            border-radius: 10px;
+            min-width: 250px;
+            border: 1px solid var(--ladder-color);
+        }
+
+        .ladder-step {
+            padding: 8px;
+            margin: 4px 0;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            font-family: monospace;
             font-size: 0.9rem;
         }
 
-        /* --- DASHBOARD NAVIGATION --- */
-        .dashboard-nav {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+        .ladder-step.active-from { background: var(--highlight); color: white; font-weight: bold; }
+        .ladder-step.active-to { background: var(--ladder-color); color: black; font-weight: bold; }
+        .ladder-step span { opacity: 0.7; }
 
-        .nav-btn {
-            background: transparent;
-            border: 1px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: 10px 20px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .nav-btn:hover, .nav-btn.active {
-            background: var(--neon-blue);
-            color: var(--space-black);
-            box-shadow: 0 0 15px var(--neon-blue);
-        }
-
-        /* --- GAME CONTAINER --- */
-        .game-container {
-            width: 90%;
-            max-width: 800px;
-            background: var(--panel-bg);
-            border: 1px solid var(--neon-purple);
-            padding: 20px;
+        /* --- GAME INPUT AREA --- */
+        .control-panel {
+            flex: 1;
+            background: var(--panel-color);
+            padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(188, 19, 254, 0.2);
-            min-height: 400px;
-            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-width: 300px;
         }
 
-        .hidden { display: none; }
-
-        /* --- MODULE 1: CLASSIFICATION --- */
-        .sort-zone {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .category-bucket {
-            border: 2px dashed var(--neon-purple);
-            padding: 20px;
-            text-align: center;
-            border-radius: 8px;
-            transition: background 0.2s;
-            cursor: pointer;
-        }
-
-        .category-bucket:hover {
-            background: rgba(188, 19, 254, 0.1);
-        }
-
-        .current-item-card {
-            background: var(--neon-blue);
-            color: var(--space-black);
-            padding: 20px;
+        .question-box {
             font-size: 1.5rem;
-            font-weight: bold;
-            text-align: center;
-            border-radius: 5px;
             margin-bottom: 20px;
-            box-shadow: 0 0 10px var(--neon-blue);
-        }
-
-        /* --- MODULE 2: ALIGNMENT --- */
-        .alignment-stage {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            background: rgba(0,0,0,0.5);
-            height: 150px;
-            border-radius: 10px;
-            margin: 20px 0;
-            padding: 0 20px;
-        }
-
-        .celestial-body {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 0.8rem;
-            font-weight: bold;
-            cursor: grab;
-            position: relative;
-            user-select: none;
-            border: 2px solid transparent;
-        }
-
-        .body-sun { background: yellow; color: black; box-shadow: 0 0 20px orange; width: 80px; height: 80px; }
-        .body-earth { background: dodgerblue; color: white; }
-        .body-moon { background: gray; color: white; width: 40px; height: 40px; }
-
-        .alignment-controls {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        /* --- MODULE 3: METRICS --- */
-        .metric-card {
             text-align: center;
         }
 
-        .metric-input {
+        .input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
             background: transparent;
             border: none;
-            border-bottom: 2px solid var(--neon-blue);
+            border-bottom: 2px solid var(--highlight);
             color: white;
-            font-size: 1.2rem;
-            text-align: center;
+            font-size: 1.5rem;
             width: 150px;
-            margin: 0 10px;
+            text-align: center;
         }
+        input:focus { outline: none; border-bottom-color: var(--ladder-color); }
 
-        .metric-input:focus { outline: none; border-bottom: 2px solid var(--neon-green); }
+        button {
+            background: var(--highlight);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        button:hover { transform: scale(1.05); }
 
-        /* --- FEEDBACK SYSTEM --- */
-        .feedback-panel {
+        /* --- FEEDBACK --- */
+        .feedback {
             margin-top: 20px;
             padding: 15px;
+            background: rgba(0,0,0,0.3);
             border-radius: 5px;
-            background: rgba(0, 0, 0, 0.6);
+            width: 100%;
             display: none;
         }
+        
+        .feedback.correct { border-left: 5px solid #00ff00; }
+        .feedback.wrong { border-left: 5px solid #ff0000; }
 
-        .feedback-correct { border-left: 5px solid var(--neon-green); color: var(--neon-green); }
-        .feedback-wrong { border-left: 5px solid var(--neon-red); color: var(--neon-red); }
-
-        .explanation-text {
-            color: #ccc;
-            margin-top: 5px;
+        .explanation {
+            margin-top: 10px;
             font-size: 0.9rem;
+            color: #ddd;
             line-height: 1.4;
         }
 
-        .btn-action {
-            background: var(--neon-purple);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .btn-action:hover { background: #d94aff; }
-
-        .score-display {
-            position: absolute;
-            top: 20px;
-            right: 20px;
+        .formula {
             font-family: monospace;
-            font-size: 1.2rem;
-            color: var(--neon-green);
+            background: rgba(255,255,255,0.1);
+            padding: 2px 5px;
+            border-radius: 3px;
         }
 
     </style>
 </head>
 <body>
 
-    <h1>ASTRO-COMMAND ACADEMY</h1>
-    <div class="subtitle">Grade 9 Astronomy Review Unit</div>
+    <h1>METRIC LADDER LAB</h1>
+    <p>Use the ladder to calculate the "jumps" between units.</p>
 
-    <div class="dashboard-nav">
-        <button class="nav-btn active" onclick="loadModule('sort')">1. The Sorting Nebula</button>
-        <button class="nav-btn" onclick="loadModule('align')">2. Alignment Lab</button>
-        <button class="nav-btn" onclick="loadModule('metric')">3. Metric Computer</button>
-    </div>
-
-    <div id="game-container" class="game-container">
-        <div class="score-display">XP: <span id="xp-score">0</span></div>
-
-        <div id="module-sort">
-            <h2 style="text-align: center; color: var(--neon-blue);">Classify the Object</h2>
-            <p style="text-align: center; color: #aaa;">Identify where the celestial object belongs.</p>
-            
-            <div id="sort-item-display" class="current-item-card">LOADING...</div>
-            
-            <div class="sort-zone">
-                <div class="category-bucket" id="btn-cat1" onclick="checkSort(0)">Option A</div>
-                <div class="category-bucket" id="btn-cat2" onclick="checkSort(1)">Option B</div>
-                <div class="category-bucket" id="btn-cat3" onclick="checkSort(2)">Option C</div>
-                <div class="category-bucket" id="btn-cat4" onclick="checkSort(3)">Option D</div>
-            </div>
+    <div class="game-wrapper">
+        
+        <div class="ladder-container">
+            <h3 style="text-align:center; margin-top:0;">Prefix Ladder</h3>
+            <div id="step-6" class="ladder-step"><span>10⁶</span> Mega (M)</div>
+            <div class="ladder-step" style="opacity:0.3; font-size:0.7rem;">...</div>
+            <div id="step-3" class="ladder-step"><span>10³</span> kilo (k)</div>
+            <div id="step-2" class="ladder-step"><span>10²</span> hecto (h)</div>
+            <div id="step-1" class="ladder-step"><span>10¹</span> deca (da)</div>
+            <div id="step-0" class="ladder-step"><span>10⁰</span> (BASE)</div>
+            <div id="step--1" class="ladder-step"><span>10⁻¹</span> deci (d)</div>
+            <div id="step--2" class="ladder-step"><span>10⁻²</span> centi (c)</div>
+            <div id="step--3" class="ladder-step"><span>10⁻³</span> milli (m)</div>
+            <div class="ladder-step" style="opacity:0.3; font-size:0.7rem;">...</div>
+            <div id="step--6" class="ladder-step"><span>10⁻⁶</span> micro (µ)</div>
         </div>
 
-        <div id="module-align" class="hidden">
-            <h2 style="text-align: center; color: var(--neon-blue);">Orbital Alignment</h2>
-            <p style="text-align: center; color: #aaa;">Swap the bodies to match the phenomenon.</p>
-            
-            <div id="align-prompt" class="current-item-card">Solar Eclipse</div>
-            
-            <div class="alignment-stage">
-                <div class="celestial-body body-sun" id="pos-1">SUN</div>
-                <div style="width: 20px; height: 2px; background: white;"></div>
-                <div class="celestial-body body-earth" id="pos-2">EARTH</div>
-                <div style="width: 20px; height: 2px; background: white;"></div>
-                <div class="celestial-body body-moon" id="pos-3">MOON</div>
+        <div class="control-panel">
+            <div class="question-box" id="question-display">
+                Loading...
             </div>
 
-            <div class="alignment-controls">
-                <button class="btn-action" onclick="swapBodies()">Swap Center & Right</button>
-                <button class="btn-action" onclick="checkAlignment()">Confirm Alignment</button>
+            <div class="input-group">
+                <span>=</span>
+                <input type="text" id="user-input" placeholder="?" autocomplete="off">
+                <span id="target-unit-label" style="font-size: 1.2rem; font-weight: bold;"></span>
+            </div>
+
+            <button onclick="checkAnswer()" id="action-btn">Check Conversion</button>
+
+            <div id="feedback-area" class="feedback">
+                <strong id="feedback-title"></strong>
+                <div id="feedback-text" class="explanation"></div>
+                <button onclick="nextQuestion()" style="margin-top:10px; background: var(--ladder-color);">Next Problem</button>
             </div>
         </div>
-
-        <div id="module-metric" class="hidden">
-            <h2 style="text-align: center; color: var(--neon-blue);">Deep Space Conversions</h2>
-            <p style="text-align: center; color: #aaa;">Convert the units or define the distance.</p>
-            
-            <div class="metric-card">
-                <h3 id="metric-q">Convert:</h3>
-                <div style="font-size: 1.5rem; margin: 20px;">
-                    <span id="metric-val">1456</span> <span id="metric-unit-from">m</span>
-                    = 
-                    <input type="text" id="user-metric-input" class="metric-input" placeholder="?"> 
-                    <span id="metric-unit-to">km</span>
-                </div>
-                <button class="btn-action" onclick="checkMetric()">Submit Calculation</button>
-            </div>
-        </div>
-
-        <div id="feedback-area" class="feedback-panel">
-            <h3 id="feedback-title">Correct!</h3>
-            <p id="feedback-content" class="explanation-text">Explanation goes here.</p>
-            <button id="next-btn" class="btn-action" onclick="nextQuestion()">Next Mission</button>
-        </div>
-
     </div>
 
 <script>
-    // --- STATE MANAGEMENT ---
-    let currentModule = 'sort';
-    let score = 0;
-    let currentQIndex = 0;
+    // --- CONFIGURATION ---
+    // Prefixes mapped to their power of 10
+    const prefixMap = {
+        'M': 6,  // Mega
+        'k': 3,  // kilo
+        'h': 2,  // hecto
+        'da': 1, // deca
+        'base': 0, // meters, liters, grams
+        'd': -1, // deci
+        'c': -2, // centi
+        'm': -3, // milli
+        'µ': -6  // micro
+    };
 
-    // --- DATA BANKS (Based on Source Text) ---
-    
-    // Sort Data: Covers Planets [12-14], Stars [16-17], Debris [18-19], Pluto [34]
-    const sortData = [
-        { item: "Jupiter", options: ["Terrestrial Planet", "Gas Giant", "Star", "Dwarf Planet"], correct: 1, explanation: "Jupiter is a Gas Giant. It is located in the outer solar system and composed mostly of Hydrogen and Helium." },
-        { item: "White Dwarf", options: ["Star Birth", "Low Mass Star Death", "High Mass Star Death", "Planet"], correct: 1, explanation: "A White Dwarf is the final stage of a low-to-medium mass star (like our Sun) after it sheds its outer layers." },
-        { item: "Pluto", options: ["Terrestrial Planet", "Gas Giant", "Asteroid", "Dwarf Planet"], correct: 3, explanation: "Pluto is a Dwarf Planet. [cite_start]In 2006, it was reclassified because it has not 'cleared its neighborhood' of other objects[cite: 34]." },
-        { item: "Comet", options: ["Made of Ice/Dust", "Made of Rock/Metal", "Star", "Galaxy"], correct: 0, explanation: "Comets are 'dirty snowballs' made of ice and dust. [cite_start]They have highly elliptical orbits and develop tails near the Sun[cite: 18]." },
-        { item: "Mars", options: ["Terrestrial Planet", "Gas Giant", "Moon", "Asteroid"], correct: 0, explanation: "Mars is a Terrestrial Planet. [cite_start]It is one of the four inner planets with a solid, rocky surface[cite: 13]." },
-        [cite_start]{ item: "Black Hole", options: ["Low Mass Star Death", "High Mass Star Death", "Nebula", "Protostar"], correct: 1, explanation: "A Black Hole is formed from the collapse of a very high mass star (supernova remnant)[cite: 16]." },
-        [cite_start]{ item: "Nebula", options: ["Star Birthplace", "Star Death", "Planet", "Comet"], correct: 0, explanation: "A Nebula is a giant cloud of gas and dust where stars are born (Protostars)[cite: 16]." },
-        [cite_start]{ item: "Asteroid", options: ["Icy Body", "Rocky Body", "Star", "Gas Giant"], correct: 1, explanation: "Asteroids are rocky, airless remnants left over from the early formation of our solar system, mostly found in the belt between Mars and Jupiter[cite: 19]." }
+    // Questions directly from Source 42 (Review Sheet)
+    const questions = [
+        // Source 42: Level 2 & 3
+        { val: 1456, uFrom: 'm', uTo: 'km' },
+        { val: 1456, uFrom: 'm', uTo: 'cm' },
+        { val: 15, uFrom: 'mL', uTo: 'L' },
+        { val: 78.2, uFrom: 'kg', uTo: 'g' },
+        { val: 1576, uFrom: 'µL', uTo: 'L' },
+        { val: 147, uFrom: 'g', uTo: 'kg' },
+        { val: 147, uFrom: 'g', uTo: 'mg' },
+        { val: 147, uFrom: 'g', uTo: 'dg' },
+        { val: 147, uFrom: 'g', uTo: 'Mg' }, // Mega-gram
+        // Source 42: Level 4
+        { val: 159, uFrom: 'hm', uTo: 'mm' },
+        { val: 159, uFrom: 'hm', uTo: 'µm' },
+        { val: 159, uFrom: 'hm', uTo: 'km' },
+        { val: 189.3, uFrom: 'dL', uTo: 'daL' },
+        { val: 189.3, uFrom: 'dL', uTo: 'cL' },
+        { val: 189.3, uFrom: 'dL', uTo: 'ML' }, // Mega-liter
+        { val: 189.3, uFrom: 'dL', uTo: 'mL' }
     ];
 
-    // Alignment Data: Covers Eclipses [20-22], Phases [7-8]
-    // Config: 0 = Sun-Earth-Moon, 1 = Sun-Moon-Earth
-    const alignData = [
-        [cite_start]{ name: "Solar Eclipse", targetConfig: 1, explanation: "In a Solar Eclipse, the Moon passes between the Sun and Earth, blocking the Sun's light[cite: 22]." },
-        [cite_start]{ name: "Lunar Eclipse", targetConfig: 0, explanation: "In a Lunar Eclipse, the Earth passes between the Sun and Moon, casting a shadow on the Moon[cite: 21]." },
-        [cite_start]{ name: "Full Moon", targetConfig: 0, explanation: "During a Full Moon, the Earth is between the Sun and Moon, allowing us to see the fully illuminated side of the Moon[cite: 7]." },
-        { name: "New Moon", targetConfig: 1, explanation: "During a New Moon, the Moon is between the Sun and Earth. [cite_start]The illuminated side faces away from us[cite: 8]." }
-    ];
+    let currentQ = null;
 
-    // Metric Data: Covers Conversions [41, 42], Units [4]
-    const metricData = [
-        { type: "math", val: 1456, uFrom: "m", uTo: "km", ans: 1.456, exp: "To convert meters to km, divide by 1000. 1456 / 1000 = 1.456 km." },
-        { type: "math", val: 78.2, uFrom: "kg", uTo: "g", ans: 78200, exp: "To convert kg to g, multiply by 1000. 78.2 * 1000 = 78,200 g." },
-        { type: "math", val: 159, uFrom: "hm", uTo: "mm", ans: 15900000, exp: "Hecto (hm) to milli (mm) is a factor of 100,000 (10^5). 159 * 100,000 = 15,900,000." },
-        [cite_start]{ type: "def", q: "Distance: Earth to Sun", uFrom: "Unit?", uTo: "", ans: "au", exp: "An Astronomical Unit (AU) is defined as the average distance between the Earth and the Sun (~150 million km)[cite: 4]." },
-        [cite_start]{ type: "def", q: "Distance: To other stars", uFrom: "Unit?", uTo: "", ans: "light year", exp: "Distances to other stars/galaxies are measured in Light Years (the distance light travels in one year)[cite: 4]." }
-    ];
+    // --- LOGIC ---
 
-    // --- GAME LOGIC ---
-
-    function init() {
-        loadModule('sort');
-    }
-
-    function loadModule(modName) {
-        currentModule = modName;
-        currentQIndex = 0; // Reset question index for demo purposes (or shuffle in real app)
+    function parseUnit(unitString) {
+        // Return { prefix: 'k', power: 3 }
+        if (unitString.length === 1) return { p: 'base', val: 0 }; // m, g, L
         
-        // UI Switching
-        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.nav-btn')[modName === 'sort' ? 0 : modName === 'align' ? 1 : 2].classList.add('active');
-
-        document.getElementById('module-sort').classList.add('hidden');
-        document.getElementById('module-align').classList.add('hidden');
-        document.getElementById('module-metric').classList.add('hidden');
-        document.getElementById(`module-${modName}`).classList.remove('hidden');
-
-        hideFeedback();
-
-        if(modName === 'sort') loadSortQuestion();
-        if(modName === 'align') loadAlignQuestion();
-        if(modName === 'metric') loadMetricQuestion();
+        // Handle "da" (deca) specifically as it is 2 chars
+        if (unitString.startsWith('da')) return { p: 'da', val: 1 };
+        
+        // Handle standard 1 char prefixes
+        let pChar = unitString.charAt(0);
+        if (prefixMap.hasOwnProperty(pChar)) {
+            return { p: pChar, val: prefixMap[pChar] };
+        }
+        
+        // Fallback for base units if logic fails
+        return { p: 'base', val: 0 };
     }
 
-    function hideFeedback() {
+    function loadQuestion() {
+        // Pick random or next
+        currentQ = questions[Math.floor(Math.random() * questions.length)];
+
+        // Display
+        document.getElementById('question-display').innerHTML = 
+            `Convert: <strong>${currentQ.val} ${currentQ.uFrom}</strong>`;
+        document.getElementById('target-unit-label').innerText = currentQ.uTo;
+        document.getElementById('user-input').value = '';
+        
+        // Reset UI
         document.getElementById('feedback-area').style.display = 'none';
-        document.getElementById('next-btn').style.display = 'inline-block'; // Ensure next button is ready
+        document.getElementById('action-btn').style.display = 'inline-block';
+        
+        highlightLadder();
     }
 
-    function showFeedback(isCorrect, text) {
-        const fb = document.getElementById('feedback-area');
-        const fbTitle = document.getElementById('feedback-title');
-        const fbContent = document.getElementById('feedback-content');
+    function highlightLadder() {
+        // Clear old highlights
+        document.querySelectorAll('.ladder-step').forEach(el => {
+            el.classList.remove('active-from', 'active-to');
+        });
+
+        // Get powers
+        const fromInfo = parseUnit(currentQ.uFrom);
+        const toInfo = parseUnit(currentQ.uTo);
+
+        // Highlight
+        const fromEl = document.getElementById(`step-${fromInfo.val}`);
+        const toEl = document.getElementById(`step-${toInfo.val}`);
+
+        if(fromEl) fromEl.classList.add('active-from'); // RED (Start)
+        if(toEl) toEl.classList.add('active-to');       // BLUE (End)
+    }
+
+    function checkAnswer() {
+        const inputStr = document.getElementById('user-input').value.replace(/,/g, ''); // Remove commas
+        const inputVal = parseFloat(inputStr);
         
-        fb.style.display = 'block';
-        fbTitle.innerText = isCorrect ? "Excellent Work!" : "Correction Needed";
-        fbTitle.className = isCorrect ? "feedback-correct" : "feedback-wrong";
-        fbContent.innerText = text;
+        if (isNaN(inputVal)) {
+            alert("Please enter a number.");
+            return;
+        }
+
+        // Calculate Correct Answer
+        const fromInfo = parseUnit(currentQ.uFrom);
+        const toInfo = parseUnit(currentQ.uTo);
+        const powerDiff = fromInfo.val - toInfo.val; // e.g., hm(2) to mm(-3) = 5
+        
+        // Math: value * 10^(diff)
+        const correctVal = currentQ.val * Math.pow(10, powerDiff);
+        
+        // Generate Explanation Text
+        const direction = powerDiff > 0 ? "right" : "left";
+        const steps = Math.abs(powerDiff);
+        
+        // Check with slight tolerance for float errors
+        const isCorrect = Math.abs(inputVal - correctVal) < (correctVal * 0.00001) || inputVal === correctVal;
+
+        // Display Feedback
+        const fbArea = document.getElementById('feedback-area');
+        const fbTitle = document.getElementById('feedback-title');
+        const fbText = document.getElementById('feedback-text');
+
+        fbArea.style.display = 'block';
+        document.getElementById('action-btn').style.display = 'none';
 
         if (isCorrect) {
-            score += 100;
-            document.getElementById('xp-score').innerText = score;
-        }
-    }
-
-    // --- SORTING MODULE LOGIC ---
-    function loadSortQuestion() {
-        const q = sortData[currentQIndex % sortData.length];
-        document.getElementById('sort-item-display').innerText = q.item;
-        const buttons = document.querySelectorAll('.category-bucket');
-        buttons.forEach((btn, index) => {
-            btn.innerText = q.options[index];
-            btn.style.pointerEvents = 'auto'; // re-enable clicks
-        });
-    }
-
-    function checkSort(choiceIndex) {
-        const q = sortData[currentQIndex % sortData.length];
-        // Disable buttons to prevent double clicking
-        document.querySelectorAll('.category-bucket').forEach(b => b.style.pointerEvents = 'none');
-        
-        if (choiceIndex === q.correct) {
-            showFeedback(true, q.explanation);
+            fbArea.className = "feedback correct";
+            fbTitle.innerText = "Correct!";
+            fbText.innerHTML = `
+                Start at <strong>${fromInfo.p === 'base' ? 'Base' : fromInfo.p} (10<sup>${fromInfo.val}</sup>)</strong>.<br>
+                End at <strong>${toInfo.p === 'base' ? 'Base' : toInfo.p} (10<sup>${toInfo.val}</sup>)</strong>.<br>
+                Difference is <strong>${steps} steps</strong> down the ladder.<br>
+                Move decimal <strong>${steps} places ${direction}</strong>.
+            `;
         } else {
-            showFeedback(false, `Not quite. ${q.explanation}`);
+            fbArea.className = "feedback wrong";
+            fbTitle.innerText = "Try Again";
+            // Format numbers to avoid scientific notation for readability if possible
+            let displayCorrect = correctVal;
+            if (steps > 4) displayCorrect = correctVal.toLocaleString(); 
+
+            fbText.innerHTML = `
+                Not quite. Look at the ladder:<br>
+                1. Start: <strong>${fromInfo.p} (10<sup>${fromInfo.val}</sup>)</strong><br>
+                2. End: <strong>${toInfo.p} (10<sup>${toInfo.val}</sup>)</strong><br>
+                3. The gap is <strong>${steps} steps</strong>.<br>
+                4. <span class="formula">${currentQ.val} × 10<sup>${powerDiff}</sup> = ${displayCorrect}</span>
+            `;
         }
     }
 
-    // --- ALIGNMENT MODULE LOGIC ---
-    let currentAlignConfig = 0; // 0: S-E-M, 1: S-M-E
-
-    function loadAlignQuestion() {
-        const q = alignData[currentQIndex % alignData.length];
-        document.getElementById('align-prompt').innerText = `Form a: ${q.name}`;
-        
-        // Randomize starting position
-        currentAlignConfig = Math.random() < 0.5 ? 0 : 1;
-        renderAlignment();
-    }
-
-    function swapBodies() {
-        currentAlignConfig = currentAlignConfig === 0 ? 1 : 0;
-        renderAlignment();
-    }
-
-    function renderAlignment() {
-        const p2 = document.getElementById('pos-2'); // Center
-        const p3 = document.getElementById('pos-3'); // Right
-        
-        if (currentAlignConfig === 0) {
-            // Earth Center, Moon Right
-            p2.innerText = "EARTH"; p2.className = "celestial-body body-earth";
-            p3.innerText = "MOON"; p3.className = "celestial-body body-moon";
-        } else {
-            // Moon Center, Earth Right
-            p2.innerText = "MOON"; p2.className = "celestial-body body-moon";
-            p3.innerText = "EARTH"; p3.className = "celestial-body body-earth";
-        }
-    }
-
-    function checkAlignment() {
-        const q = alignData[currentQIndex % alignData.length];
-        if (currentAlignConfig === q.targetConfig) {
-            showFeedback(true, q.explanation);
-        } else {
-            showFeedback(false, `Incorrect. ${q.explanation} Try swapping positions.`);
-        }
-    }
-
-    // --- METRIC MODULE LOGIC ---
-    function loadMetricQuestion() {
-        const q = metricData[currentQIndex % metricData.length];
-        document.getElementById('user-metric-input').value = "";
-        
-        if(q.type === 'math') {
-            document.getElementById('metric-q').innerText = "Calculate Conversion:";
-            document.getElementById('metric-val').innerText = q.val;
-            document.getElementById('metric-unit-from').innerText = q.uFrom;
-            document.getElementById('metric-unit-to').innerText = q.uTo;
-        } else {
-            document.getElementById('metric-q').innerText = q.q;
-            document.getElementById('metric-val').innerText = "";
-            document.getElementById('metric-unit-from').innerText = "";
-            document.getElementById('metric-unit-to').innerText = "";
-            document.getElementById('user-metric-input').placeholder = "Enter Term";
-        }
-    }
-
-    function checkMetric() {
-        const q = metricData[currentQIndex % metricData.length];
-        const input = document.getElementById('user-metric-input').value.toLowerCase().trim();
-        
-        let correct = false;
-        
-        if (q.type === 'math') {
-            // Allow slight margin of error or string matching
-            if (parseFloat(input) === q.ans) correct = true;
-        } else {
-            if (input === q.ans) correct = true;
-        }
-
-        if (correct) {
-            showFeedback(true, q.exp);
-        } else {
-            showFeedback(false, `Incorrect. ${q.exp}`);
-        }
-    }
-
-    // --- GLOBAL CONTROL ---
     function nextQuestion() {
-        hideFeedback();
-        currentQIndex++;
-        if(currentModule === 'sort') loadSortQuestion();
-        if(currentModule === 'align') loadAlignQuestion();
-        if(currentModule === 'metric') loadMetricQuestion();
+        loadQuestion();
     }
 
-    // Start
-    init();
+    // Init
+    loadQuestion();
 
 </script>
 </body>

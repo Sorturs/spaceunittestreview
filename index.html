@@ -3,343 +3,347 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metric Ladder Lab | Grade 9 Science</title>
+    <title>Metric Staircase Master</title>
     <style>
         :root {
-            --bg-color: #1a1a2e;
-            --panel-color: #16213e;
-            --accent-green: #0f3460;
-            --highlight: #e94560;
-            --text-light: #f1f1f1;
-            --ladder-color: #4da8da;
+            --primary: #4361ee;
+            --success: #2ec4b6;
+            --error: #e63946;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #212529;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-light);
+            background-color: var(--bg);
+            color: var(--text);
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            padding: 20px;
             margin: 0;
-            padding: 20px;
         }
 
-        h1 { border-bottom: 2px solid var(--highlight); padding-bottom: 10px; }
+        h1 { margin-bottom: 5px; color: var(--primary); }
+        p.subtitle { margin-top: 0; color: #6c757d; }
 
-        .game-wrapper {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            max-width: 900px;
+        /* Container for the app */
+        .app-container {
+            max-width: 800px;
             width: 100%;
-            justify-content: center;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
         }
 
-        /* --- THE LADDER VISUALIZER --- */
-        .ladder-container {
-            background: var(--panel-color);
+        /* The Staircase Visualizer */
+        .staircase-panel {
+            background: var(--card);
             padding: 20px;
-            border-radius: 10px;
-            min-width: 250px;
-            border: 1px solid var(--ladder-color);
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            overflow-x: auto;
         }
 
-        .ladder-step {
-            padding: 8px;
-            margin: 4px 0;
-            background: rgba(255,255,255,0.05);
-            border-radius: 4px;
+        .staircase {
             display: flex;
             justify-content: space-between;
-            font-family: monospace;
-            font-size: 0.9rem;
+            align-items: center;
+            position: relative;
+            margin: 20px 0;
+            min-width: 600px; /* Ensure it doesn't squish on mobile */
         }
 
-        .ladder-step.active-from { background: var(--highlight); color: white; font-weight: bold; }
-        .ladder-step.active-to { background: var(--ladder-color); color: black; font-weight: bold; }
-        .ladder-step span { opacity: 0.7; }
-
-        /* --- GAME INPUT AREA --- */
-        .control-panel {
-            flex: 1;
-            background: var(--panel-color);
-            padding: 30px;
+        .step {
+            width: 80px;
+            height: 80px;
             border-radius: 10px;
+            background: #e9ecef;
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
-            min-width: 300px;
+            align-items: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .step.active-start { background: #ffeaa7; border-color: #fdcb6e; transform: scale(1.1); }
+        .step.active-end { background: #81ecec; border-color: #00cec9; transform: scale(1.1); }
+        
+        /* Connecting line */
+        .connector {
+            position: absolute;
+            height: 4px;
+            background: #dee2e6;
+            top: 50%;
+            left: 40px;
+            right: 40px;
+            z-index: -1;
+        }
+
+        .step span.prefix { font-size: 1.2rem; }
+        .step span.abbr { font-size: 0.9rem; color: #6c757d; }
+        .step span.mnemonic { 
+            position: absolute; 
+            top: -25px; 
+            font-size: 0.8rem; 
+            color: var(--primary);
+            width: 100px;
+            text-align: center;
+        }
+
+        /* Game Area */
+        .game-panel {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
         }
 
         .question-box {
             font-size: 1.5rem;
             margin-bottom: 20px;
-            text-align: center;
         }
+
+        .highlight { font-weight: bold; color: var(--primary); }
 
         .input-group {
             display: flex;
-            align-items: center;
+            justify-content: center;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
-        input {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid var(--highlight);
-            color: white;
-            font-size: 1.5rem;
+        input[type="number"] {
+            padding: 10px 15px;
+            font-size: 1.2rem;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
             width: 150px;
-            text-align: center;
         }
-        input:focus { outline: none; border-bottom-color: var(--ladder-color); }
 
         button {
-            background: var(--highlight);
-            color: white;
+            padding: 10px 25px;
+            font-size: 1.1rem;
             border: none;
-            padding: 12px 24px;
-            border-radius: 5px;
-            font-size: 1rem;
+            border-radius: 8px;
             cursor: pointer;
             transition: transform 0.1s;
         }
-        button:hover { transform: scale(1.05); }
 
-        /* --- FEEDBACK --- */
+        button.check-btn { background-color: var(--primary); color: white; }
+        button.check-btn:hover { background-color: #304ffe; }
+        button.next-btn { background-color: #6c757d; color: white; display: none; }
+        
+        /* Feedback Styles */
         .feedback {
             margin-top: 20px;
             padding: 15px;
-            background: rgba(0,0,0,0.3);
-            border-radius: 5px;
-            width: 100%;
+            border-radius: 8px;
+            text-align: left;
             display: none;
         }
-        
-        .feedback.correct { border-left: 5px solid #00ff00; }
-        .feedback.wrong { border-left: 5px solid #ff0000; }
 
-        .explanation {
-            margin-top: 10px;
-            font-size: 0.9rem;
-            color: #ddd;
-            line-height: 1.4;
-        }
+        .feedback.correct { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
+        .feedback.incorrect { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
 
-        .formula {
-            font-family: monospace;
-            background: rgba(255,255,255,0.1);
-            padding: 2px 5px;
-            border-radius: 3px;
+        .explanation-step { margin: 5px 0; }
+        .math-visual { 
+            font-family: 'Courier New', Courier, monospace; 
+            font-weight: bold; 
+            background: rgba(255,255,255,0.5); 
+            padding: 2px 5px; 
+            border-radius: 4px;
         }
 
     </style>
 </head>
 <body>
 
-    <h1>METRIC LADDER LAB</h1>
-    <p>Use the ladder to calculate the "jumps" between units.</p>
+    <h1>Metric Staircase Master</h1>
+    <p class="subtitle">Grade 9 Science & Math Practice</p>
 
-    <div class="game-wrapper">
+    <div class="app-container">
         
-        <div class="ladder-container">
-            <h3 style="text-align:center; margin-top:0;">Prefix Ladder</h3>
-            <div id="step-6" class="ladder-step"><span>10⁶</span> Mega (M)</div>
-            <div class="ladder-step" style="opacity:0.3; font-size:0.7rem;">...</div>
-            <div id="step-3" class="ladder-step"><span>10³</span> kilo (k)</div>
-            <div id="step-2" class="ladder-step"><span>10²</span> hecto (h)</div>
-            <div id="step-1" class="ladder-step"><span>10¹</span> deca (da)</div>
-            <div id="step-0" class="ladder-step"><span>10⁰</span> (BASE)</div>
-            <div id="step--1" class="ladder-step"><span>10⁻¹</span> deci (d)</div>
-            <div id="step--2" class="ladder-step"><span>10⁻²</span> centi (c)</div>
-            <div id="step--3" class="ladder-step"><span>10⁻³</span> milli (m)</div>
-            <div class="ladder-step" style="opacity:0.3; font-size:0.7rem;">...</div>
-            <div id="step--6" class="ladder-step"><span>10⁻⁶</span> micro (µ)</div>
+        <div class="staircase-panel">
+            <h3>The Metric Layout</h3>
+            <div class="staircase" id="staircase">
+                <div class="connector"></div>
+                </div>
+            <p style="text-align: center; font-size: 0.9rem; color: #6c757d;">
+                <span style="color:#fdcb6e">● Start</span> &rarr; <span style="color:#00cec9">● End</span>
+            </p>
         </div>
 
-        <div class="control-panel">
-            <div class="question-box" id="question-display">
-                Loading...
+        <div class="game-panel">
+            <div class="question-box" id="question-text">
+                Loading Question...
             </div>
-
+            
             <div class="input-group">
-                <span>=</span>
-                <input type="text" id="user-input" placeholder="?" autocomplete="off">
-                <span id="target-unit-label" style="font-size: 1.2rem; font-weight: bold;"></span>
+                <input type="number" id="user-answer" placeholder="Enter value" step="any">
+                <span id="target-unit-label" style="align-self: center; font-size: 1.2rem; font-weight: bold;"></span>
             </div>
 
-            <button onclick="checkAnswer()" id="action-btn">Check Conversion</button>
+            <button class="check-btn" onclick="checkAnswer()">Check Answer</button>
+            <button class="next-btn" onclick="generateQuestion()">Next Question</button>
 
-            <div id="feedback-area" class="feedback">
-                <strong id="feedback-title"></strong>
-                <div id="feedback-text" class="explanation"></div>
-                <button onclick="nextQuestion()" style="margin-top:10px; background: var(--ladder-color);">Next Problem</button>
-            </div>
+            <div class="feedback" id="feedback-area"></div>
         </div>
     </div>
 
-<script>
-    // --- CONFIGURATION ---
-    // Prefixes mapped to their power of 10
-    const prefixMap = {
-        'M': 6,  // Mega
-        'k': 3,  // kilo
-        'h': 2,  // hecto
-        'da': 1, // deca
-        'base': 0, // meters, liters, grams
-        'd': -1, // deci
-        'c': -2, // centi
-        'm': -3, // milli
-        'µ': -6  // micro
-    };
+    <script>
+        // --- DATA STRUCTURE ---
+        const units = [
+            { name: "Kilo", abbr: "k", power: 3, mnemonic: "King" },
+            { name: "Hecto", abbr: "h", power: 2, mnemonic: "Henry" },
+            { name: "Deca", abbr: "da", power: 1, mnemonic: "Died" },
+            { name: "Base", abbr: "(m/l/g)", power: 0, mnemonic: "By" },
+            { name: "Deci", abbr: "d", power: -1, mnemonic: "Drinking" },
+            { name: "Centi", abbr: "c", power: -2, mnemonic: "Chocolate" },
+            { name: "Milli", abbr: "m", power: -3, mnemonic: "Milk" }
+        ];
 
-    // Questions directly from Source 42 (Review Sheet)
-    const questions = [
-        // Source 42: Level 2 & 3
-        { val: 1456, uFrom: 'm', uTo: 'km' },
-        { val: 1456, uFrom: 'm', uTo: 'cm' },
-        { val: 15, uFrom: 'mL', uTo: 'L' },
-        { val: 78.2, uFrom: 'kg', uTo: 'g' },
-        { val: 1576, uFrom: 'µL', uTo: 'L' },
-        { val: 147, uFrom: 'g', uTo: 'kg' },
-        { val: 147, uFrom: 'g', uTo: 'mg' },
-        { val: 147, uFrom: 'g', uTo: 'dg' },
-        { val: 147, uFrom: 'g', uTo: 'Mg' }, // Mega-gram
-        // Source 42: Level 4
-        { val: 159, uFrom: 'hm', uTo: 'mm' },
-        { val: 159, uFrom: 'hm', uTo: 'µm' },
-        { val: 159, uFrom: 'hm', uTo: 'km' },
-        { val: 189.3, uFrom: 'dL', uTo: 'daL' },
-        { val: 189.3, uFrom: 'dL', uTo: 'cL' },
-        { val: 189.3, uFrom: 'dL', uTo: 'ML' }, // Mega-liter
-        { val: 189.3, uFrom: 'dL', uTo: 'mL' }
-    ];
+        // State variables
+        let currentStart = 0;
+        let currentEnd = 0;
+        let currentValue = 0;
+        let baseType = "m"; // meters, liters, or grams
 
-    let currentQ = null;
-
-    // --- LOGIC ---
-
-    function parseUnit(unitString) {
-        // Return { prefix: 'k', power: 3 }
-        if (unitString.length === 1) return { p: 'base', val: 0 }; // m, g, L
-        
-        // Handle "da" (deca) specifically as it is 2 chars
-        if (unitString.startsWith('da')) return { p: 'da', val: 1 };
-        
-        // Handle standard 1 char prefixes
-        let pChar = unitString.charAt(0);
-        if (prefixMap.hasOwnProperty(pChar)) {
-            return { p: pChar, val: prefixMap[pChar] };
-        }
-        
-        // Fallback for base units if logic fails
-        return { p: 'base', val: 0 };
-    }
-
-    function loadQuestion() {
-        // Pick random or next
-        currentQ = questions[Math.floor(Math.random() * questions.length)];
-
-        // Display
-        document.getElementById('question-display').innerHTML = 
-            `Convert: <strong>${currentQ.val} ${currentQ.uFrom}</strong>`;
-        document.getElementById('target-unit-label').innerText = currentQ.uTo;
-        document.getElementById('user-input').value = '';
-        
-        // Reset UI
-        document.getElementById('feedback-area').style.display = 'none';
-        document.getElementById('action-btn').style.display = 'inline-block';
-        
-        highlightLadder();
-    }
-
-    function highlightLadder() {
-        // Clear old highlights
-        document.querySelectorAll('.ladder-step').forEach(el => {
-            el.classList.remove('active-from', 'active-to');
-        });
-
-        // Get powers
-        const fromInfo = parseUnit(currentQ.uFrom);
-        const toInfo = parseUnit(currentQ.uTo);
-
-        // Highlight
-        const fromEl = document.getElementById(`step-${fromInfo.val}`);
-        const toEl = document.getElementById(`step-${toInfo.val}`);
-
-        if(fromEl) fromEl.classList.add('active-from'); // RED (Start)
-        if(toEl) toEl.classList.add('active-to');       // BLUE (End)
-    }
-
-    function checkAnswer() {
-        const inputStr = document.getElementById('user-input').value.replace(/,/g, ''); // Remove commas
-        const inputVal = parseFloat(inputStr);
-        
-        if (isNaN(inputVal)) {
-            alert("Please enter a number.");
-            return;
+        // --- INITIALIZATION ---
+        function init() {
+            renderStaircase();
+            generateQuestion();
         }
 
-        // Calculate Correct Answer
-        const fromInfo = parseUnit(currentQ.uFrom);
-        const toInfo = parseUnit(currentQ.uTo);
-        const powerDiff = fromInfo.val - toInfo.val; // e.g., hm(2) to mm(-3) = 5
-        
-        // Math: value * 10^(diff)
-        const correctVal = currentQ.val * Math.pow(10, powerDiff);
-        
-        // Generate Explanation Text
-        const direction = powerDiff > 0 ? "right" : "left";
-        const steps = Math.abs(powerDiff);
-        
-        // Check with slight tolerance for float errors
-        const isCorrect = Math.abs(inputVal - correctVal) < (correctVal * 0.00001) || inputVal === correctVal;
+        // Render the visual steps
+        function renderStaircase() {
+            const container = document.getElementById('staircase');
+            // clear existing except connector
+            container.innerHTML = '<div class="connector"></div>'; 
 
-        // Display Feedback
-        const fbArea = document.getElementById('feedback-area');
-        const fbTitle = document.getElementById('feedback-title');
-        const fbText = document.getElementById('feedback-text');
+            units.forEach((unit, index) => {
+                const step = document.createElement('div');
+                step.className = 'step';
+                step.id = `step-${index}`;
+                step.innerHTML = `
+                    <span class="mnemonic">${unit.mnemonic}</span>
+                    <span class="prefix">${unit.name}</span>
+                    <span class="abbr">${unit.abbr}</span>
+                `;
+                container.appendChild(step);
+            });
+        }
 
-        fbArea.style.display = 'block';
-        document.getElementById('action-btn').style.display = 'none';
+        // --- GAME LOGIC ---
+        function generateQuestion() {
+            // Reset UI
+            document.getElementById('feedback-area').style.display = 'none';
+            document.querySelector('.check-btn').style.display = 'inline-block';
+            document.querySelector('.next-btn').style.display = 'none';
+            document.getElementById('user-answer').value = '';
+            
+            // Randomize Base Unit (Meters, Grams, Liters)
+            const bases = ['m', 'g', 'L'];
+            baseType = bases[Math.floor(Math.random() * bases.length)];
 
-        if (isCorrect) {
-            fbArea.className = "feedback correct";
-            fbTitle.innerText = "Correct!";
-            fbText.innerHTML = `
-                Start at <strong>${fromInfo.p === 'base' ? 'Base' : fromInfo.p} (10<sup>${fromInfo.val}</sup>)</strong>.<br>
-                End at <strong>${toInfo.p === 'base' ? 'Base' : toInfo.p} (10<sup>${toInfo.val}</sup>)</strong>.<br>
-                Difference is <strong>${steps} steps</strong> down the ladder.<br>
-                Move decimal <strong>${steps} places ${direction}</strong>.
+            // Pick Start and End indices (ensure they aren't the same)
+            currentStart = Math.floor(Math.random() * units.length);
+            do {
+                currentEnd = Math.floor(Math.random() * units.length);
+            } while (currentStart === currentEnd);
+
+            // Generate a simple number (integer or 1 decimal place)
+            currentValue = (Math.random() * 100).toFixed(1);
+            if (currentValue.endsWith('.0')) currentValue = parseInt(currentValue);
+            else currentValue = parseFloat(currentValue);
+
+            // Construct full unit strings (e.g., "km", "mg")
+            const startUnitStr = getUnitString(currentStart);
+            const endUnitStr = getUnitString(currentEnd);
+
+            // Display
+            document.getElementById('question-text').innerHTML = 
+                `Convert <span class="highlight">${currentValue} ${startUnitStr}</span> to...`;
+            document.getElementById('target-unit-label').innerText = endUnitStr;
+
+            // Update Visuals
+            updateVisuals(currentStart, currentEnd);
+        }
+
+        function getUnitString(index) {
+            if (units[index].name === "Base") return baseType;
+            return units[index].abbr + baseType;
+        }
+
+        function updateVisuals(start, end) {
+            // clear previous highlights
+            document.querySelectorAll('.step').forEach(s => {
+                s.classList.remove('active-start', 'active-end');
+            });
+            
+            // add new highlights
+            document.getElementById(`step-${start}`).classList.add('active-start');
+            document.getElementById(`step-${end}`).classList.add('active-end');
+        }
+
+        function checkAnswer() {
+            const userVal = parseFloat(document.getElementById('user-answer').value);
+            
+            // Calculate Logic
+            // Difference in steps tells us power of 10
+            // Start index (e.g., 0 for Kilo) to End index (e.g., 6 for Milli)
+            // Steps = End - Start. 
+            // If positive, we are going DOWN (Right). If negative, going UP (Left).
+            const stepDiff = currentEnd - currentStart; 
+            const factor = Math.pow(10, stepDiff);
+            
+            // Floating point fix for display
+            let correctAnswer = currentValue * factor;
+            // Round to avoid 3.00000000004 issues
+            correctAnswer = parseFloat(correctAnswer.toPrecision(10));
+
+            // Feedback Logic
+            const feedbackEl = document.getElementById('feedback-area');
+            feedbackEl.style.display = 'block';
+            
+            const direction = stepDiff > 0 ? "RIGHT (Down)" : "LEFT (Up)";
+            const jumps = Math.abs(stepDiff);
+            const operation = stepDiff > 0 ? "multiply" : "divide";
+
+            let htmlContent = "";
+
+            if (userVal === correctAnswer) {
+                feedbackEl.className = 'feedback correct';
+                htmlContent += `<strong>✅ Correct!</strong><br>`;
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+                htmlContent += `<strong>❌ Not quite.</strong> The answer is <strong>${correctAnswer}</strong>.<br>`;
+            }
+
+            // The Master Teacher Explanation
+            htmlContent += `
+                <hr style="opacity:0.2">
+                <div class="explanation-step"><strong>1. Compare:</strong> We moved from <strong>${units[currentStart].name}</strong> to <strong>${units[currentEnd].name}</strong>.</div>
+                <div class="explanation-step"><strong>2. Count:</strong> That is <span class="math-visual">${jumps} jumps</span> on the staircase.</div>
+                <div class="explanation-step"><strong>3. Slide:</strong> Since we moved ${direction}, we move the decimal point <strong>${jumps} spaces to the ${direction.split(' ')[0]}</strong>.</div>
+                <div class="explanation-step"><strong>Math:</strong> ${currentValue} × 10<sup>${stepDiff}</sup> = <strong>${correctAnswer}</strong></div>
             `;
-        } else {
-            fbArea.className = "feedback wrong";
-            fbTitle.innerText = "Try Again";
-            // Format numbers to avoid scientific notation for readability if possible
-            let displayCorrect = correctVal;
-            if (steps > 4) displayCorrect = correctVal.toLocaleString(); 
 
-            fbText.innerHTML = `
-                Not quite. Look at the ladder:<br>
-                1. Start: <strong>${fromInfo.p} (10<sup>${fromInfo.val}</sup>)</strong><br>
-                2. End: <strong>${toInfo.p} (10<sup>${toInfo.val}</sup>)</strong><br>
-                3. The gap is <strong>${steps} steps</strong>.<br>
-                4. <span class="formula">${currentQ.val} × 10<sup>${powerDiff}</sup> = ${displayCorrect}</span>
-            `;
+            feedbackEl.innerHTML = htmlContent;
+            
+            document.querySelector('.check-btn').style.display = 'none';
+            document.querySelector('.next-btn').style.display = 'inline-block';
         }
-    }
 
-    function nextQuestion() {
-        loadQuestion();
-    }
+        // Initialize on load
+        window.onload = init;
 
-    // Init
-    loadQuestion();
-
-</script>
+    </script>
 </body>
 </html>

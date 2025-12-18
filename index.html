@@ -3,526 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grade 9 Astro-Cadet Training</title>
+    <title>Cosmic Clicker: Grade 9 Review</title>
     <style>
         :root {
-            --space-black: #0b0d17;
-            --star-white: #e6e6ff;
-            --neon-blue: #00f3ff;
-            --neon-purple: #bc13fe;
-            --alert-red: #ff3860;
-            --success-green: #23d160;
-            --glass: rgba(255, 255, 255, 0.1);
+            --bg-color: #050510;
+            --panel-bg: #151525;
+            --accent: #00d2ff;
+            --secondary: #bd00ff;
+            --text-main: #e0e6ed;
+            --success: #00ff88;
+            --danger: #ff4757;
         }
 
         body {
-            background-color: var(--space-black);
-            color: var(--star-white);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            user-select: none;
+        }
+
+        /* --- LAYOUT --- */
+        .column {
+            padding: 20px;
             display: flex;
             flex-direction: column;
+            border-right: 1px solid #333;
+        }
+
+        /* Left: Clicker & Stats */
+        .col-left {
+            width: 25%;
             align-items: center;
-            min-height: 100vh;
+            background: linear-gradient(180deg, var(--panel-bg) 0%, #000 100%);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+            z-index: 10;
+        }
+
+        /* Center: Visualizer */
+        .col-center {
+            width: 45%;
+            position: relative;
             background-image: 
                 radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 3px),
                 radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 2px),
                 radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 3px);
             background-size: 550px 550px, 350px 350px, 250px 250px;
-            background-position: 0 0, 40px 60px, 130px 270px;
+            overflow-y: auto;
         }
 
-        header {
-            text-align: center;
-            padding: 2rem;
-            border-bottom: 2px solid var(--neon-blue);
-            width: 100%;
-            background: rgba(11, 13, 23, 0.9);
-            box-shadow: 0 0 20px var(--neon-blue);
+        /* Right: Shop */
+        .col-right {
+            width: 30%;
+            background-color: var(--panel-bg);
+            overflow-y: auto;
         }
 
-        h1 { margin: 0; font-size: 2.5rem; text-transform: uppercase; letter-spacing: 3px; }
-        p.subtitle { color: var(--neon-blue); font-weight: bold; }
-
-        .container {
-            max-width: 900px;
-            width: 100%;
-            padding: 20px;
-        }
-
-        /* Dashboard Navigation */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .module-card {
-            background: var(--glass);
-            border: 1px solid var(--neon-purple);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .module-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 15px var(--neon-purple);
-            background: rgba(188, 19, 254, 0.2);
-        }
-
-        .module-card h3 { margin-top: 0; color: var(--neon-blue); }
-
-        /* Game Sections */
-        .game-section {
-            display: none;
-            background: rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--neon-blue);
-            border-radius: 15px;
-            padding: 30px;
-            margin-top: 20px;
-            animation: fadeIn 0.5s;
-        }
-
-        .game-section.active { display: block; }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .btn {
-            background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: 10px 20px;
-            font-size: 1rem;
-            cursor: pointer;
-            border-radius: 5px;
-            transition: 0.3s;
-            margin: 5px;
-        }
-
-        .btn:hover { background: var(--neon-blue); color: var(--space-black); }
-        .btn-back { border-color: var(--alert-red); color: var(--alert-red); margin-bottom: 20px; }
-        .btn-back:hover { background: var(--alert-red); color: white; }
-
-        /* Module 1: Planet Sort */
-        .planet-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 10px;
-            margin: 20px 0;
-            min-height: 60px;
-            padding: 10px;
-            border: 1px dashed #555;
-            border-radius: 10px;
-        }
-
-        .planet-pill {
-            background: #333;
-            padding: 8px 15px;
-            border-radius: 20px;
-            cursor: pointer;
-            user-select: none;
-            border: 1px solid #777;
-        }
-
-        .planet-pill.selected { border-color: var(--neon-blue); background: #2a2a40; }
+        /* --- COMPONENT STYLES --- */
         
-        .drop-zone {
+        h1, h2, h3 { margin-top: 0; text-transform: uppercase; letter-spacing: 2px; }
+        h1 { font-size: 1.5rem; color: var(--accent); text-align: center; }
+        
+        .resource-display {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        #data-count {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--success);
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+            display: block;
+        }
+        
+        #dps-display { font-size: 1rem; color: #888; }
+
+        .big-button {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            border: 4px solid var(--accent);
+            background: radial-gradient(circle, #2a2a40 0%, #000 100%);
+            color: var(--accent);
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.3s;
+            outline: none;
+            box-shadow: 0 0 20px var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .big-button:active { transform: scale(0.95); }
+        .big-button:hover { box-shadow: 0 0 40px var(--accent); }
+
+        /* Shop Tabs */
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            background: none;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .tab-btn.active { color: var(--accent); border-bottom: 3px solid var(--accent); }
+
+        /* Shop Items */
+        .shop-item {
             background: rgba(255,255,255,0.05);
-            border: 2px solid var(--neon-purple);
-            border-radius: 10px;
-            padding: 20px;
-            min-height: 100px;
-            margin-bottom: 20px;
-        }
-
-        .check-btn { background: var(--success-green); border-color: var(--success-green); color: black; width: 100%; font-weight: bold;}
-
-        /* Module 2: Star Lifecycle */
-        .lifecycle-stage {
-            background: var(--glass);
-            margin: 10px 0;
+            border: 1px solid #444;
             padding: 15px;
-            border-left: 4px solid var(--neon-blue);
-        }
-        .lifecycle-options { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;}
-
-        /* Module 3: Quiz */
-        .feedback-box {
-            margin-top: 15px;
-            padding: 15px;
+            margin-bottom: 10px;
             border-radius: 8px;
-            display: none;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .feedback-correct { background: rgba(35, 209, 96, 0.2); border: 1px solid var(--success-green); }
-        .feedback-wrong { background: rgba(255, 56, 96, 0.2); border: 1px solid var(--alert-red); }
 
-        .hidden { display: none; }
+        .shop-item:hover { background: rgba(255,255,255,0.1); border-color: var(--accent); }
+        .shop-item.locked { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
+        
+        .item-info h4 { margin: 0 0 5px 0; color: var(--text-main); }
+        .item-info p { margin: 0; font-size: 0.8rem; color: #aaa; }
+        .price-tag { background: #222; padding: 5px 10px; border-radius: 4px; color: var(--success); font-weight: bold; }
+
+        /* System Visualization */
+        .celestial-body {
+            padding: 20px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.6);
+            border-left: 4px solid var(--accent);
+            border-radius: 0 10px 10px 0;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        .celestial-body h3 { color: var(--accent); margin-bottom: 5px; }
+        .fact-box { font-size: 0.9rem; color: #ccc; font-style: italic; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 4px; margin-top: 5px; }
+
+        /* MODAL (Quiz) */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: var(--panel-bg);
+            border: 2px solid var(--accent);
+            padding: 30px;
+            width: 500px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 0 50px var(--accent);
+        }
+        .quiz-options { display: grid; gap: 10px; margin-top: 20px; }
+        .quiz-btn {
+            background: #333; border: 1px solid #555; color: white; padding: 15px;
+            cursor: pointer; border-radius: 5px; transition: 0.2s; font-size: 1rem;
+        }
+        .quiz-btn:hover { background: #444; border-color: white; }
+
+        /* Notifications */
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: var(--success); color: #000; padding: 10px 20px;
+            border-radius: 20px; font-weight: bold; opacity: 0; transition: 0.5s;
+        }
 
     </style>
 </head>
 <body>
 
-<header>
-    <h1>Astro-Cadet Academy</h1>
-    <p class="subtitle">Grade 9 Astronomy Review Terminal</p>
-</header>
+    <div class="column col-left">
+        <h1>Cosmic Review<br>Engine</h1>
+        
+        <div class="resource-display">
+            <span id="data-count">0</span>
+            <div style="font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; color: #666;">Data Points (DP)</div>
+            <div id="dps-display">0 DP / second</div>
+        </div>
 
-<div class="container">
-    
-    <div id="main-menu" class="dashboard-grid">
-        <div class="module-card" onclick="loadModule('module1')">
-            <h3>01. Solar System Alignment</h3>
-            <p>Order the planets and classify them as Terrestrial or Gas Giants.</p>
-        </div>
-        <div class="module-card" onclick="loadModule('module2')">
-            <h3>02. The Stellar Forge</h3>
-            <p>Reconstruct the life cycles of stars based on their mass.</p>
-        </div>
-        <div class="module-card" onclick="loadModule('module3')">
-            <h3>03. Comms Officer Trivia</h3>
-            <p>Identify terms: Eclipses, Measurements, and Definitions.</p>
+        <button class="big-button" onclick="clickGather()">
+            ANALYZE<br>SPACE
+        </button>
+
+        <div style="margin-top: 30px; width: 100%; padding: 0 20px;">
+            <h3>Mission Status</h3>
+            <p id="mission-log" style="font-size: 0.85rem; color: #888; font-family: monospace;">
+                > System initialized.<br>
+                > Awaiting data collection.<br>
+                > Begin synthesis.
+            </p>
         </div>
     </div>
 
-    <div id="module1" class="game-section">
-        <button class="btn btn-back" onclick="goHome()">← Return to Base</button>
-        <h2>Mission 1: Planetary Alignment</h2>
-        <p>Click the planets in the correct order starting from the Sun. Then, categorize the group.</p>
-        
-        <div id="planet-pool" class="planet-container">
+    <div class="column col-center" id="universe-container">
+        <div style="text-align: center; margin-top: 50px; opacity: 0.5;">
+            <h2>The Universe is Empty</h2>
+            <p>Use Data Points to discover Planets and Concepts.</p>
+        </div>
+    </div>
+
+    <div class="column col-right">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('planets')">Solar System</button>
+            <button class="tab-btn" onclick="switchTab('research')">Research</button>
+            <button class="tab-btn" onclick="switchTab('stars')">Star Forge</button>
+        </div>
+
+        <div id="shop-planets" class="shop-section">
             </div>
-
-        <div class="drop-zone">
-            <h4>Your Orbit (Sun --> Outward):</h4>
-            <div id="orbit-slots" class="planet-container"></div>
-        </div>
-
-        <div id="classification-control" class="hidden">
-            <p>Good Order! Now, what type of planets are the first four (Inner)?</p>
-            <button class="btn" onclick="checkClassification('Gas Giant')">Gas Giants</button>
-            <button class="btn" onclick="checkClassification('Terrestrial')">Terrestrial Planets</button>
-        </div>
-
-        <div id="mod1-feedback" class="feedback-box"></div>
+        <div id="shop-research" class="shop-section" style="display:none;">
+            </div>
+        <div id="shop-stars" class="shop-section" style="display:none;">
+            </div>
     </div>
 
-    <div id="module2" class="game-section">
-        <button class="btn btn-back" onclick="goHome()">← Return to Base</button>
-        <h2>Mission 2: The Stellar Forge</h2>
-        <p>Stars are born in a <strong>Nebula</strong>. What happens next depends on mass.</p>
-        
-        <div class="lifecycle-stage">
-            <h3>Scenario A: Average Mass Star (Like our Sun)</h3>
-            <p>Current Stage: <span id="star-a-current" style="color:var(--neon-blue)">Nebula</span></p>
-            <div id="star-a-options" class="lifecycle-options"></div>
+    <div id="quiz-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 id="quiz-question" style="color: var(--accent)">Question Text</h2>
+            <div id="quiz-options" class="quiz-options"></div>
+            <p id="quiz-feedback" style="margin-top:15px; font-weight:bold;"></p>
         </div>
-        
-        <div class="lifecycle-stage">
-            <h3>Scenario B: High Mass Star</h3>
-            <p>Current Stage: <span id="star-b-current" style="color:var(--neon-purple)">Nebula</span></p>
-            <div id="star-b-options" class="lifecycle-options"></div>
-        </div>
-
-        <div id="mod2-feedback" class="feedback-box"></div>
     </div>
 
-    <div id="module3" class="game-section">
-        <button class="btn btn-back" onclick="goHome()">← Return to Base</button>
-        <h2>Mission 3: Deep Space Comms</h2>
-        <p>Answer the incoming transmission queries.</p>
-        
-        <div id="quiz-container">
-            <h3 id="question-text">Question goes here...</h3>
-            <div id="quiz-options" class="lifecycle-options" style="flex-direction: column;"></div>
-        </div>
-
-        <div id="mod3-feedback" class="feedback-box"></div>
-        <button id="next-q-btn" class="btn hidden" onclick="nextQuestion()">Next Transmission >></button>
-    </div>
-
-</div>
+    <div id="toast" class="toast">Unlocked!</div>
 
 <script>
-    // --- Data ---
+    /* --- GAME DATA & CONFIG --- */
+    let dataPoints = 0;
+    let dps = 0;
+    let clickValue = 1;
     
-    // Module 1 Data
+    // SOURCES: Mapping review sheet content to game items
+    
     const planets = [
-        {name: "Jupiter", type: "Gas"}, {name: "Mercury", type: "Terrestrial"},
-        {name: "Neptune", type: "Gas"}, {name: "Mars", type: "Terrestrial"},
-        {name: "Earth", type: "Terrestrial"}, {name: "Saturn", type: "Gas"},
-        {name: "Venus", type: "Terrestrial"}, {name: "Uranus", type: "Gas"}
-    ];
-    let userOrbit = [];
-
-    // Module 2 Data
-    const starPathA = ["Protostar", "Main Sequence", "Red Giant", "White Dwarf"];
-    const starPathB = ["Protostar", "Main Sequence", "Red Supergiant", "Supernova", "Neutron Star/Black Hole"];
-    let currentStepA = 0;
-    let currentStepB = 0;
-
-    // Module 3 Data
-    const questions = [
-        {
-            q: "We need to measure the distance to the nearest galaxy (Andromeda). Which unit should we use?",
-            options: ["Kilometers", "Astronomical Units (AU)", "Light Years", "Parsecs"],
-            answer: 2,
-            explanation: "Correct! Light Years are used for distances OUTSIDE our solar system (stars/galaxies). AU is for distances WITHIN the solar system."
+        { 
+            id: 'p1', name: 'Sun (Core)', cost: 15, dps: 1, 
+            desc: 'The center of our system.', 
+            fact: 'The Sun is a star powered by Nuclear Fusion [Source 3, 28].',
+            q: 'What process powers the Sun?',
+            a: ['Burning Coal', 'Nuclear Fusion', 'Nuclear Fission', 'Gravity'],
+            correct: 1
         },
-        {
-            q: "Alert! The Moon is passing directly between the Earth and the Sun, blocking our view of the Sun. What event is this?",
-            options: ["Lunar Eclipse", "Solar Eclipse", "Full Moon", "Winter Solstice"],
-            answer: 1,
-            explanation: "Correct! A Solar Eclipse occurs when the New Moon blocks the Sun. A Lunar Eclipse is when Earth blocks the sun from hitting the Moon."
+        { 
+            id: 'p2', name: 'Mercury', cost: 50, dps: 2, 
+            desc: 'Closest to the Sun.', 
+            fact: 'Mercury is a Terrestrial (Inner) planet [Source 13].',
+            q: 'Mercury is part of which group of planets?',
+            a: ['Gas Giants', 'Dwarf Planets', 'Terrestrial Planets', 'Asteroids'],
+            correct: 2
         },
-        {
-            q: "Analyze the Sun's energy source. What process is occurring in the Core?",
-            options: ["Burning Coal", "Nuclear Fission", "Nuclear Fusion", "Chemical Reaction"],
-            answer: 2,
-            explanation: "Correct! Nuclear Fusion turns Hydrogen into Helium in the core, releasing massive heat and light."
+        { 
+            id: 'p3', name: 'Venus', cost: 120, dps: 4, 
+            desc: 'Hottest planet.', 
+            fact: 'Venus is the hottest planet due to a thick atmosphere [Source 15].',
+            q: 'Which unit measures distance WITHIN our solar system (like Sun to Venus)?',
+            a: ['Light Year', 'Kilometer', 'Astronomical Unit (AU)', 'Parsec'],
+            correct: 2
         },
-        {
-            q: "Identify the object: It is made of ice and dust and has a highly elliptical orbit.",
-            options: ["Asteroid", "Comet", "Moon", "Star"],
-            answer: 1,
-            explanation: "Correct! Comets are 'dirty snowballs' with elliptical orbits. Asteroids are rock/metal found mostly in the belt."
+        { 
+            id: 'p4', name: 'Earth', cost: 250, dps: 8, 
+            desc: 'Our home.', 
+            fact: 'Earth has liquid water and a magnetic field that protects from Solar Wind [Source 3, 40].',
+            q: 'What protects Earth from the Solar Wind?',
+            a: ['The Moon', 'Magnetic Field', 'Gravity', 'Ozone Layer'],
+            correct: 1
         },
-        {
-            q: "Why was Pluto reclassified as a Dwarf Planet?",
-            options: ["It is too small", "It is too far away", "It hasn't cleared its orbit of debris", "It isn't round"],
-            answer: 2,
-            explanation: "Correct! While Pluto orbits the Sun and is round, it has not 'cleared its neighborhood' of other debris, which is the 3rd requirement for a Planet."
+        { 
+            id: 'p5', name: 'Mars', cost: 500, dps: 15, 
+            desc: 'The Red Planet.', 
+            fact: 'The last of the Inner Planets. Mars has the largest volcano in the system [Source 15].',
+            q: 'What do all 4 Inner Planets have in common?',
+            a: ['Made of Gas', 'Rocky Surface', 'Rings', 'Many Moons'],
+            correct: 1
+        },
+        { 
+            id: 'p6', name: 'Asteroid Belt', cost: 800, dps: 20, 
+            desc: 'Divider of the system.', 
+            fact: 'Asteroids are rocks located mostly between Mars and Jupiter [Source 19].',
+            q: 'Where is the main Asteroid Belt found?',
+            a: ['Near the Sun', 'Between Earth and Mars', 'Between Mars and Jupiter', 'Outside Pluto'],
+            correct: 2
+        },
+        { 
+            id: 'p7', name: 'Jupiter', cost: 1500, dps: 40, 
+            desc: 'King of Planets.', 
+            fact: 'The first Gas Giant. It is the largest planet in the solar system [Source 12, 14].',
+            q: 'Jupiter belongs to which group?',
+            a: ['Terrestrial', 'Gas Giants', 'Dwarfs', 'Stars'],
+            correct: 1
+        },
+        { 
+            id: 'p8', name: 'Saturn', cost: 3000, dps: 60, 
+            desc: 'Ringed Beauty.', 
+            fact: 'Gas Giant famous for its complex ring system.',
+            q: 'What is the main difference between a Moon and a Planet?',
+            a: ['Size', 'Planets orbit Stars; Moons orbit Planets', 'Shape', 'Composition'],
+            correct: 1
+        },
+        { 
+            id: 'p9', name: 'Uranus', cost: 5000, dps: 100, 
+            desc: 'The Sideways Planet.', 
+            fact: 'Uranus rotates on its side. It is an Ice Giant [Source 12].',
+            q: 'Which planets are the "Outer Planets"?',
+            a: ['Mercury, Venus', 'Earth, Mars', 'Jupiter, Saturn, Uranus, Neptune', 'Pluto, Eris'],
+            correct: 2
+        },
+        { 
+            id: 'p10', name: 'Neptune', cost: 8000, dps: 150, 
+            desc: 'The Windy Planet.', 
+            fact: 'The furthest planet from the Sun.',
+            q: 'How many planets are in our solar system?',
+            a: ['7', '8', '9', '10'],
+            correct: 1
+        },
+        { 
+            id: 'p11', name: 'Pluto (Dwarf)', cost: 12000, dps: 250, 
+            desc: 'The former planet.', 
+            fact: 'Pluto is a Dwarf Planet because it has not cleared its orbit of debris [Source 34].',
+            q: 'Why is Pluto NOT a planet?',
+            a: ['Too small', 'Too far', 'Has not cleared its orbit', 'No moons'],
+            correct: 2
         }
     ];
-    let currentQIndex = 0;
 
-    // --- Navigation Logic ---
+    const research = [
+        {
+            id: 'r1', name: 'Define: Light Year', cost: 100, dps: 5,
+            desc: 'Unlock deep space measurement.',
+            fact: 'A Light Year is the distance light travels in one year. Used for stars/galaxies [Source 4].',
+            q: 'Which unit is used to measure distance to other Galaxies?',
+            a: ['Kilometers', 'AU', 'Light Year', 'Parsecs'],
+            correct: 2
+        },
+        {
+            id: 'r2', name: 'Unlock: Solar Eclipse', cost: 300, dps: 10,
+            desc: 'Predict shadowing events.',
+            fact: 'Solar Eclipse: Moon blocks Sun. Alignment: Sun-Moon-Earth. Phase: New Moon [Source 22].',
+            q: 'What is the alignment for a Solar Eclipse?',
+            a: ['Sun-Earth-Moon', 'Sun-Moon-Earth', 'Moon-Sun-Earth', 'Earth-Sun-Moon'],
+            correct: 1
+        },
+        {
+            id: 'r3', name: 'Unlock: Lunar Eclipse', cost: 600, dps: 20,
+            desc: 'Predict blood moons.',
+            fact: 'Lunar Eclipse: Earth blocks Sun. Alignment: Sun-Earth-Moon. Phase: Full Moon [Source 21].',
+            q: 'What Moon phase is required for a Lunar Eclipse?',
+            a: ['New Moon', 'First Quarter', 'Full Moon', 'Waning Crescent'],
+            correct: 2
+        },
+        {
+            id: 'r4', name: 'Define: Comets', cost: 1000, dps: 30,
+            desc: 'Study icy bodies.',
+            fact: 'Comets are ice/dust ("dirty snowballs") with highly elliptical orbits [Source 18].',
+            q: 'How is a Comet\'s orbit different from a Planet?',
+            a: ['It is perfectly circular', 'It is highly elliptical (oval)', 'It is square', 'It doesn\'t orbit the sun'],
+            correct: 1
+        },
+        {
+            id: 'r5', name: 'Define: Seasons', cost: 2000, dps: 50,
+            desc: 'Why is it cold in winter?',
+            fact: 'Seasons are caused by the tilt of Earth\'s axis (23.5°), NOT distance from the Sun [Source 3].',
+            q: 'What causes Earth\'s seasons?',
+            a: ['Distance from Sun', 'Solar Flares', 'Tilt of Earth\'s Axis', 'Moon\'s gravity'],
+            correct: 2
+        }
+    ];
 
-    function loadModule(id) {
-        document.getElementById('main-menu').style.display = 'none';
-        document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
+    const stars = [
+        {
+            id: 's1', name: 'Nebula', cost: 2000, dps: 25,
+            desc: 'Birthplace of stars.',
+            fact: 'All stars begin in a Nebula (cloud of gas and dust) [Source 36].',
+            q: 'What is the first stage of a star\'s life?',
+            a: ['White Dwarf', 'Nebula', 'Red Giant', 'Supernova'],
+            correct: 1
+        },
+        {
+            id: 's2', name: 'Low Mass Path', cost: 5000, dps: 80,
+            desc: 'Life of a sun-like star.',
+            fact: 'Small Star -> Red Giant -> White Dwarf [Source 16].',
+            q: 'How does a low/medium mass star (like the Sun) die?',
+            a: ['Supernova', 'Black Hole', 'White Dwarf', 'Neutron Star'],
+            correct: 2
+        },
+        {
+            id: 's3', name: 'High Mass Path', cost: 15000, dps: 200,
+            desc: 'Life of a giant star.',
+            fact: 'Massive Star -> Red Supergiant -> Supernova -> Neutron Star or Black Hole [Source 16].',
+            q: 'What determines if a star becomes a Black Hole or White Dwarf?',
+            a: ['Its Color', 'Its Mass', 'Its Distance', 'Its Temperature'],
+            correct: 1
+        }
+    ];
+
+    let purchased = [];
+
+    /* --- INITIALIZATION --- */
+    function init() {
+        renderShop('shop-planets', planets);
+        renderShop('shop-research', research);
+        renderShop('shop-stars', stars);
+        gameLoop();
+    }
+
+    /* --- CORE MECHANICS --- */
+    function clickGather() {
+        dataPoints += clickValue;
+        updateUI();
         
-        if(id === 'module1') initModule1();
-        if(id === 'module2') initModule2();
-        if(id === 'module3') initModule3();
+        // Simple visual effect
+        const btn = document.querySelector('.big-button');
+        btn.style.transform = 'scale(0.95)';
+        setTimeout(() => btn.style.transform = 'scale(1)', 50);
     }
 
-    function goHome() {
-        document.getElementById('main-menu').style.display = 'grid';
-        document.querySelectorAll('.game-section').forEach(el => el.classList.remove('active'));
+    function gameLoop() {
+        setInterval(() => {
+            dataPoints += dps;
+            updateUI();
+            checkUnlockables();
+        }, 1000);
     }
 
-    // --- Module 1 Logic (Solar System) ---
-
-    function initModule1() {
-        userOrbit = [];
-        const pool = document.getElementById('planet-pool');
-        const slots = document.getElementById('orbit-slots');
-        pool.innerHTML = '';
-        slots.innerHTML = '';
-        document.getElementById('mod1-feedback').style.display = 'none';
-        document.getElementById('classification-control').classList.add('hidden');
-
-        // Shuffle planets
-        let shuffled = [...planets].sort(() => Math.random() - 0.5);
-
-        shuffled.forEach(p => {
-            const pill = document.createElement('div');
-            pill.className = 'planet-pill';
-            pill.innerText = p.name;
-            pill.onclick = () => selectPlanet(p, pill);
-            pool.appendChild(pill);
+    function updateUI() {
+        document.getElementById('data-count').innerText = Math.floor(dataPoints).toLocaleString();
+        document.getElementById('dps-display').innerText = `${dps} DP / second`;
+        
+        // Update Shop Buttons
+        [...planets, ...research, ...stars].forEach(item => {
+            const el = document.getElementById(`btn-${item.id}`);
+            if (el && !purchased.includes(item.id)) {
+                if (dataPoints >= item.cost) {
+                    el.classList.remove('locked');
+                    el.style.opacity = '1';
+                } else {
+                    el.classList.add('locked');
+                }
+            }
         });
     }
 
-    function selectPlanet(planetObj, element) {
-        // Move from pool to orbit
-        const slots = document.getElementById('orbit-slots');
-        const feedback = document.getElementById('mod1-feedback');
+    /* --- SHOP SYSTEM --- */
+    function renderShop(containerId, items) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+        items.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'shop-item locked';
+            div.id = `btn-${item.id}`;
+            div.onclick = () => tryBuy(item);
+            div.innerHTML = `
+                <div class="item-info">
+                    <h4>${item.name}</h4>
+                    <p>${item.desc}</p>
+                </div>
+                <div class="price-tag">${item.cost} DP</div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.shop-section').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
         
-        // Correct Order Logic
-        const correctOrder = ["Mercury", "Venus", "Earth", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune"];
-        const currentIndex = userOrbit.length;
-
-        if (planetObj.name === correctOrder[currentIndex]) {
-            userOrbit.push(planetObj);
-            element.remove(); // Remove from pool
-            
-            const newPill = document.createElement('div');
-            newPill.className = 'planet-pill selected';
-            newPill.innerText = planetObj.name;
-            slots.appendChild(newPill);
-            
-            feedback.style.display = 'none';
-
-            if (userOrbit.length === 8) {
-                document.getElementById('classification-control').classList.remove('hidden');
-            }
-        } else {
-            feedback.className = "feedback-box feedback-wrong";
-            feedback.style.display = 'block';
-            feedback.innerHTML = `<strong>Incorrect.</strong> ${planetObj.name} is not the next planet from the Sun. Try again!`;
-        }
+        document.getElementById(`shop-${tab}`).style.display = 'block';
+        event.target.classList.add('active');
     }
 
-    function checkClassification(choice) {
-        const feedback = document.getElementById('mod1-feedback');
-        if (choice === 'Terrestrial') {
-            feedback.className = "feedback-box feedback-correct";
-            feedback.style.display = 'block';
-            feedback.innerHTML = `<strong>Mission Success!</strong><br>Mercury, Venus, Earth, and Mars are the <strong>Inner, Terrestrial Planets</strong> (rocky surface).<br>Jupiter, Saturn, Uranus, and Neptune are the <strong>Outer, Gas Giants</strong>.`;
-        } else {
-            feedback.className = "feedback-box feedback-wrong";
-            feedback.style.display = 'block';
-            feedback.innerHTML = `<strong>Correction Needed:</strong> The first four planets are rocky, not made of gas. Try again.`;
-        }
+    function tryBuy(item) {
+        if (purchased.includes(item.id)) return;
+        if (dataPoints < item.cost) return;
+
+        // Trigger Quiz
+        launchQuiz(item);
     }
 
-    // --- Module 2 Logic (Star Life Cycle) ---
+    /* --- QUIZ & UNLOCK LOGIC --- */
+    function launchQuiz(item) {
+        const modal = document.getElementById('quiz-modal');
+        const qText = document.getElementById('quiz-question');
+        const options = document.getElementById('quiz-options');
+        const feedback = document.getElementById('quiz-feedback');
 
-    function initModule2() {
-        currentStepA = 0;
-        currentStepB = 0;
-        document.getElementById('star-a-current').innerText = "Nebula";
-        document.getElementById('star-b-current').innerText = "Nebula";
-        document.getElementById('mod2-feedback').style.display = 'none';
-        renderStarOptions();
-    }
+        modal.style.display = 'flex';
+        qText.innerText = item.q;
+        options.innerHTML = '';
+        feedback.innerText = '';
+        feedback.className = '';
 
-    function renderStarOptions() {
-        const optionsA = document.getElementById('star-a-options');
-        const optionsB = document.getElementById('star-b-options');
-        optionsA.innerHTML = '';
-        optionsB.innerHTML = '';
-
-        // Pool of all terms to confuse user slightly
-        const allTerms = ["Supernova", "Red Giant", "White Dwarf", "Red Supergiant", "Protostar", "Main Sequence", "Black Hole", "Neutron Star/Black Hole"];
-        
-        // Filter out used steps? No, just show relevant next steps mixed with distractors
-        
-        // Render A Options
-        if(currentStepA < starPathA.length) {
-            allTerms.sort(() => Math.random() - 0.5).slice(0, 4).forEach(term => {
-                // Ensure correct answer is present
-                if(!allTerms.includes(starPathA[currentStepA])) return; // Should be covered by slice logic usually, but simplified here:
-            });
-            
-            // Simplified: Just show 3 choices, one correct
-            let choicesA = [starPathA[currentStepA]];
-            if(starPathA[currentStepA] === "Red Giant") choicesA.push("Red Supergiant");
-            else choicesA.push("Black Hole", "Supernova");
-            
-            choicesA.sort(() => Math.random() - 0.5).forEach(term => {
-                const btn = document.createElement('button');
-                btn.className = 'btn';
-                btn.innerText = term;
-                btn.onclick = () => checkStarStep('A', term);
-                optionsA.appendChild(btn);
-            });
-        } else {
-             optionsA.innerHTML = "<em>Cycle Complete (Dies as White Dwarf)</em>";
-        }
-
-        // Render B Options
-        if(currentStepB < starPathB.length) {
-            let choicesB = [starPathB[currentStepB]];
-            if(starPathB[currentStepB] === "Red Supergiant") choicesB.push("Red Giant");
-            else choicesB.push("White Dwarf", "Planetary Nebula");
-
-             choicesB.sort(() => Math.random() - 0.5).forEach(term => {
-                const btn = document.createElement('button');
-                btn.className = 'btn';
-                btn.innerText = term;
-                btn.onclick = () => checkStarStep('B', term);
-                optionsB.appendChild(btn);
-            });
-        } else {
-            optionsB.innerHTML = "<em>Cycle Complete (Dies as Neutron Star or Black Hole)</em>";
-        }
-    }
-
-    function checkStarStep(path, answer) {
-        const feedback = document.getElementById('mod2-feedback');
-        let correctNext = path === 'A' ? starPathA[currentStepA] : starPathB[currentStepB];
-
-        if(answer === correctNext) {
-            feedback.className = "feedback-box feedback-correct";
-            feedback.style.display = 'block';
-            feedback.innerHTML = `<strong>Correct Sequence!</strong> ${answer} is the next stage.`;
-            
-            if(path === 'A') {
-                document.getElementById('star-a-current').innerText += " → " + answer;
-                currentStepA++;
-            } else {
-                document.getElementById('star-b-current').innerText += " → " + answer;
-                currentStepB++;
-            }
-            renderStarOptions();
-        } else {
-            feedback.className = "feedback-box feedback-wrong";
-            feedback.style.display = 'block';
-            let hint = "";
-            if (answer === "Red Supergiant" && path === 'A') hint = "Only massive stars become Supergiants. Sun-sized stars become Red Giants.";
-            if (answer === "White Dwarf" && path === 'B') hint = "Massive stars explode! They don't fade away gently like White Dwarfs.";
-            feedback.innerHTML = `<strong>Sequence Error.</strong> ${hint || "That stage does not fit this star's mass category."}`;
-        }
-    }
-
-    // --- Module 3 Logic (Quiz) ---
-
-    function initModule3() {
-        currentQIndex = 0;
-        loadQuestion();
-    }
-
-    function loadQuestion() {
-        const qObj = questions[currentQIndex];
-        document.getElementById('question-text').innerText = `Query ${currentQIndex + 1}/${questions.length}: ${qObj.q}`;
-        const optsDiv = document.getElementById('quiz-options');
-        optsDiv.innerHTML = '';
-        document.getElementById('mod3-feedback').style.display = 'none';
-        document.getElementById('next-q-btn').classList.add('hidden');
-
-        qObj.options.forEach((opt, idx) => {
+        item.a.forEach((opt, idx) => {
             const btn = document.createElement('button');
-            btn.className = 'btn';
+            btn.className = 'quiz-btn';
             btn.innerText = opt;
-            btn.onclick = () => checkQuiz(idx);
-            optsDiv.appendChild(btn);
+            btn.onclick = () => checkAnswer(idx, item);
+            options.appendChild(btn);
         });
     }
 
-    function checkQuiz(selectedIndex) {
-        const qObj = questions[currentQIndex];
-        const feedback = document.getElementById('mod3-feedback');
-        
-        if (selectedIndex === qObj.answer) {
-            feedback.className = "feedback-box feedback-correct";
-            feedback.innerHTML = qObj.explanation;
-            document.getElementById('next-q-btn').classList.remove('hidden');
+    function checkAnswer(idx, item) {
+        const feedback = document.getElementById('quiz-feedback');
+        if (idx === item.correct) {
+            feedback.style.color = 'var(--success)';
+            feedback.innerText = 'CORRECT! Uploading to Database...';
+            setTimeout(() => {
+                completePurchase(item);
+                document.getElementById('quiz-modal').style.display = 'none';
+            }, 1000);
         } else {
-            feedback.className = "feedback-box feedback-wrong";
-            feedback.innerHTML = "<strong>Incorrect.</strong> Try again.";
+            feedback.style.color = 'var(--danger)';
+            feedback.innerText = 'ACCESS DENIED. Incorrect Review Data.';
         }
-        feedback.style.display = 'block';
     }
 
-    function nextQuestion() {
-        currentQIndex++;
-        if (currentQIndex < questions.length) {
-            loadQuestion();
-        } else {
-            document.getElementById('question-text').innerText = "All Transmissions Analyzed. Good work, Cadet.";
-            document.getElementById('quiz-options').innerHTML = '';
-            document.getElementById('mod3-feedback').style.display = 'none';
-            document.getElementById('next-q-btn').classList.add('hidden');
-        }
+    function completePurchase(item) {
+        dataPoints -= item.cost;
+        dps += item.dps;
+        purchased.push(item.id);
+        
+        // Remove from shop visual
+        const shopBtn = document.getElementById(`btn-${item.id}`);
+        shopBtn.style.background = 'rgba(0, 255, 136, 0.1)';
+        shopBtn.innerHTML = `<h4>✓ ${item.name} INSTALLED</h4>`;
+        shopBtn.style.cursor = 'default';
+        shopBtn.onclick = null;
+
+        // Add to Universe Visualizer
+        addToUniverse(item);
+
+        // Toast
+        const toast = document.getElementById('toast');
+        toast.style.opacity = '1';
+        toast.style.bottom = '50px';
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.bottom = '20px';
+        }, 2000);
+
+        // Log
+        const log = document.getElementById('mission-log');
+        log.innerHTML = `> Acquired: ${item.name}<br>` + log.innerHTML;
+        
+        updateUI();
     }
+
+    function addToUniverse(item) {
+        const container = document.getElementById('universe-container');
+        
+        // Remove "Empty" placeholder if first item
+        if (purchased.length === 1) container.innerHTML = '';
+
+        const div = document.createElement('div');
+        div.className = 'celestial-body';
+        div.innerHTML = `
+            <h3>${item.name}</h3>
+            <div>${item.fact}</div>
+            <div class="fact-box">Generating ${item.dps} DP/s</div>
+        `;
+        container.prepend(div);
+    }
+
+    function checkUnlockables() {
+        // Here we could implement dependencies (e.g. can't buy Earth before Venus)
+        // But for this simple version, cost is the gatekeeper.
+    }
+
+    // Start
+    init();
 
 </script>
 </body>
